@@ -3,7 +3,7 @@ import imgutil from "./imgutil.js";
 class ImageUploader extends HTMLElement {
   constructor(uploadurl) {
     super();
-    this.uploadurl = uploadurl || "/upload/";
+    this.uploadurl = uploadurl || "/data/";
     this.style.display = "inline-block";
 
     const cr = tag => document.createElement(tag);
@@ -55,7 +55,7 @@ class ImageUploader extends HTMLElement {
     //const img2 = await imgutil.getImageFromArrayBuffer(bin);
     //this.appendChild(img2);
     const res = await (await fetch(this.uploadurl, { method: "POST", body: bin })).json();
-    this.tf.value = res.name;
+    this.tf.value = this.uploadurl + res.name;
   }
 }
 customElements.define("img-uploader", ImageUploader);
