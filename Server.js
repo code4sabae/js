@@ -94,7 +94,7 @@ class Server {
 
       this.socks.push(sock);
       const members = this.socks.map((s) => {
-        return { id: s.id }
+        return { id: s.id };
       });
       sock.send(JSON.stringify({ type: "init", from: sock.id, members }));
 
@@ -106,7 +106,7 @@ class Server {
       };
       sock.onclose = sock.onerror = funcremove;
       */
-     for await (const msg of sock) {
+      for await (const msg of sock) {
         if (typeof msg === "string") {
           try {
             console.log("ws", msg);
@@ -152,8 +152,9 @@ class Server {
           body: data,
         });
       } catch (e) {
-        if (req.path !== "/favicon.ico")
+        if (req.path !== "/favicon.ico") {
           console.log("err", req.path, e.stack);
+        }
       }
     });
 
@@ -198,7 +199,7 @@ class Server {
       return false;
     }
     try {
-      sock.send(sdata)
+      sock.send(sdata);
       return true;
     } catch (e) {
       this.socks = this.socks.filter((s) => s !== sock);
