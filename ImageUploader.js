@@ -6,7 +6,7 @@ class ImageUploader extends HTMLElement {
     this.uploadurl = uploadurl || "/data/";
     this.style.display = "inline-block";
 
-    const cr = tag => document.createElement(tag);
+    const cr = (tag) => document.createElement(tag);
     const c = cr("div");
     this.appendChild(c);
 
@@ -51,10 +51,11 @@ class ImageUploader extends HTMLElement {
   async upload(img) {
     const bin = await imgutil.getArrayBufferFromImage(img);
     // console.log(bin);
-    
+
     //const img2 = await imgutil.getImageFromArrayBuffer(bin);
     //this.appendChild(img2);
-    const res = await (await fetch(this.uploadurl, { method: "POST", body: bin })).json();
+    const res =
+      await (await fetch(this.uploadurl, { method: "POST", body: bin })).json();
     this.tf.value = this.uploadurl + res.name;
   }
 }

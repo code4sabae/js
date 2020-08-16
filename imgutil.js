@@ -1,16 +1,19 @@
 const imgutil = {};
 
-imgutil.waitImageLoad = async img => new Promise(res => img.onload = () => res());
+imgutil.waitImageLoad = async (img) =>
+  new Promise((res) => img.onload = () => res());
 
-imgutil.getBlobFromCanvas = async (canvas, mimetype, quality) => new Promise(res => canvas.toBlob(blob => res(blob), mimetype, quality));
+imgutil.getBlobFromCanvas = async (canvas, mimetype, quality) =>
+  new Promise((res) => canvas.toBlob((blob) => res(blob), mimetype, quality));
 
-imgutil.getArrayBufferFromBlob = async blob => new Promise(res => {
-  const r = new FileReader();
-  r.addEventListener("loadend", () => res(r.result));
-  r.readAsArrayBuffer(blob);
-});
+imgutil.getArrayBufferFromBlob = async (blob) =>
+  new Promise((res) => {
+    const r = new FileReader();
+    r.addEventListener("loadend", () => res(r.result));
+    r.readAsArrayBuffer(blob);
+  });
 
-imgutil.getArrayBufferFromImage = async img => {
+imgutil.getArrayBufferFromImage = async (img) => {
   const canvas = document.createElement("canvas");
   const [iw, ih] = [img.orgwidth || img.width, img.orgheight || img.height];
   canvas.width = iw;
@@ -23,9 +26,9 @@ imgutil.getArrayBufferFromImage = async img => {
   const blob = await imgutil.getBlobFromCanvas(canvas, "image/jpeg", quality);
   const bin = await imgutil.getArrayBufferFromBlob(blob);
   return bin;
-}
+};
 
-imgutil.getImageFromArrayBuffer = async bin => {
+imgutil.getImageFromArrayBuffer = async (bin) => {
   const blob = new Blob([bin], { type: "image/jpeg" });
   const urlCreator = window.URL || window.webkitURL;
   const url = urlCreator.createObjectURL(blob);
@@ -33,7 +36,7 @@ imgutil.getImageFromArrayBuffer = async bin => {
   img.src = url;
   await imgutil.waitImageLoad(img);
   return img;
-}
+};
 
 imgutil.resizeImage = async (img, type, maxw) => {
   const iw = img.width;
@@ -62,6 +65,6 @@ imgutil.loadResizedImage = async (file, maxw, maxsize) => {
     return img;
   }
   return await imgutil.resizeImage(img, file.type, maxw);
-}
+};
 
 export default imgutil;

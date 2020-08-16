@@ -5,7 +5,7 @@ class Server {
   constructor(port) {
     const app = createApp();
 
-    app.handle(/\/api\/*/, async req => {
+    app.handle(/\/api\/*/, async (req) => {
       try {
         const json = req.method === "POST" ? await req.json() : null;
         console.log("[req api]", json);
@@ -28,11 +28,12 @@ class Server {
 
     const getFileNameFromDate = () => {
       const d = new Date();
-      const fix0 = n => n < 10 ? "0" + n : n;
-      return d.getFullYear() + fix0(d.getMonth() + 1) + fix0(d.getDate()) + "/" + d.getTime();
+      const fix0 = (n) => n < 10 ? "0" + n : n;
+      return d.getFullYear() + fix0(d.getMonth() + 1) + fix0(d.getDate()) +
+        "/" + d.getTime();
     };
 
-    app.handle(/\/data\/*/, async req => {
+    app.handle(/\/data\/*/, async (req) => {
       try {
         if (req.method === "POST") {
           const bin = await req.arrayBuffer();
@@ -67,13 +68,15 @@ class Server {
           if (fn.indexOf("..") >= 0) {
             throw new Error("illegal filename");
           }
-          const n = fn.lastIndexOf('.');
+          const n = fn.lastIndexOf(".");
           const ext = n < 0 ? "html" : fn.substring(n + 1);
           const data = Deno.readFileSync("." + fn);
           const ctype = CONTENT_TYPE[ext] || "text/plain";
           await req.respond({
             status: 200,
-            headers: new Headers({ "Content-Type": ctype, "Access-Control-Allow-Origin": "*" }),
+            headers: new Headers(
+              { "Content-Type": ctype, "Access-Control-Allow-Origin": "*" },
+            ),
             body: data,
           });
         }
@@ -82,10 +85,12 @@ class Server {
       }
     });
 
-    app.handle(/\/*/, async req => {
+    app.handle(/\/*/, async (req) => {
       try {
-        const fn = req.path === "/" || req.path.indexOf("..") >= 0 ? "/index.html" : req.path;
-        const n = fn.lastIndexOf('.');
+        const fn = req.path === "/" || req.path.indexOf("..") >= 0
+          ? "/index.html"
+          : req.path;
+        const n = fn.lastIndexOf(".");
         const ext = n < 0 ? "html" : fn.substring(n + 1);
         const data = Deno.readFileSync("static" + fn);
         const ctype = CONTENT_TYPE[ext] || "text/plain";
@@ -98,15 +103,15 @@ class Server {
         console.log("err", e.stack);
       }
     });
-    
+
     app.listen({ port });
-    
+
     console.log(`http://localhost:${port}/`);
   }
 
   api(path, req) { // to override
     return req;
   }
-};
+}
 
 export { Server };
