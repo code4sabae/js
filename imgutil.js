@@ -12,12 +12,13 @@ imgutil.getArrayBufferFromBlob = async blob => new Promise(res => {
 
 imgutil.getArrayBufferFromImage = async img => {
   const canvas = document.createElement("canvas");
-  canvas.width = img.width;
-  canvas.height = img.height;
+  const [iw, ih] = [img.orgwidth || img.width, img.orgheight || img.height];
+  canvas.width = iw;
+  canvas.height = ih;
   const g = canvas.getContext("2d");
   g.fillStyle = "#ffffff";
-  g.fillRect(0, 0, img.width, img.height);
-  g.drawImage(img, 0, 0);
+  g.fillRect(0, 0, iw, ih);
+  g.drawImage(img, 0, 0, iw, ih, 0, 0, iw, ih);
   const quality = .9;
   const blob = await imgutil.getBlobFromCanvas(canvas, "image/jpeg", quality);
   const bin = await imgutil.getArrayBufferFromBlob(blob);
@@ -60,7 +61,7 @@ imgutil.loadResizedImage = async (file, maxw, maxsize) => {
   if (file.type.indexOf("svg") >= 0 && file.size <= maxsize) {
     return img;
   }
-  return await imgutil.resizeImage(img, file.type, maxwidth);
+  return await imgutil.resizeImage(img, file.type, maxw);
 }
 
 export default imgutil;

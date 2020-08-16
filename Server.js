@@ -7,13 +7,18 @@ class Server {
 
     app.handle(/\/api\/*/, async req => {
       try {
-        const json = await req.json();
+        const json = req.method === "POST" ? await req.json() : null;
         console.log("[req api]", json);
         const res = this.api(req.path, json);
         console.log("[res api]", res);
         await req.respond({
           status: 200,
-          headers: new Headers({ "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }),
+          headers: new Headers({
+            "Content-Type": "application/json; charset=utf-8",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type, Accept", // 必要
+            "Access-Control-Allow-Methods": "PUT, DELETE, PATCH", // 必要? なくても動いた
+          }),
           body: JSON.stringify(res),
         });
       } catch (e) {
@@ -21,14 +26,24 @@ class Server {
       }
     });
 
+    const getFileNameFromDate = () => {
+      const d = new Date();
+      const fix0 = n => n < 10 ? "0" + n : n;
+      return d.getFullYear() + fix0(d.getMonth() + 1) + fix0(d.getDate()) + "/" + d.getTime();
+    };
     app.handle(/\/upload\/*/, async req => {
       try {
         const bin = await req.arrayBuffer();
         console.log("[req upload]", bin.length);
-        const fn = new Date().getTime();
+        const fn = getFileNameFromDate();
         const name = "data/" + fn + ".jpg";
         try {
           Deno.mkdirSync("data");
+        } catch (e) {
+        }
+        try {
+          const dir = name.substring(0, name.lastIndexOf("/"));
+          Deno.mkdirSync(dir);
         } catch (e) {
         }
         Deno.writeFileSync(name, bin);
@@ -36,7 +51,12 @@ class Server {
         console.log("[upload res]", res);
         await req.respond({
           status: 200,
-          headers: new Headers({ "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }),
+          headers: new Headers({
+            "Content-Type": "application/json; charset=utf-8",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type, Accept", // 必要
+            "Access-Control-Allow-Methods": "PUT, DELETE, PATCH", // 必要? なくても動いた
+          }),
           body: JSON.stringify(res),
         });
       } catch (e) {
@@ -44,7 +64,7 @@ class Server {
       }
     });
 
-    app.handle(/\/data\//, async req => {
+    app.handle(/\/data\/*/, async req => {
       try {
         const fn = req.path;
         console.log(fn);

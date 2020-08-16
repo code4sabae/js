@@ -1,8 +1,9 @@
 import imgutil from "./imgutil.js";
 
 class ImageUploader extends HTMLElement {
-  constructor() {
+  constructor(uploadurl) {
     super();
+    this.uploadurl = uploadurl || "/upload/";
     this.style.display = "inline-block";
 
     const cr = tag => document.createElement(tag);
@@ -33,6 +34,8 @@ class ImageUploader extends HTMLElement {
   }
   async setFile(file, maxwidth, maxsize) {
     const img = await imgutil.loadResizedImage(file, maxwidth, maxsize);
+    img.orgwidth = img.width; // img.width が変わってしまうので保存 getArrayBufferFromImageで使う
+    img.orgheight = img.height;
     this.c.appendChild(img);
     const iw = 28;
     if (img.width > img.height) {
@@ -51,7 +54,7 @@ class ImageUploader extends HTMLElement {
     
     //const img2 = await imgutil.getImageFromArrayBuffer(bin);
     //this.appendChild(img2);
-    const res = await (await fetch("/upload/", { method: "POST", body: bin })).json();
+    const res = await (await fetch(this.uploadurl, { method: "POST", body: bin })).json();
     this.tf.value = res.name;
   }
 }

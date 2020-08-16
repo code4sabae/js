@@ -1,6 +1,7 @@
 const fetchJSON = async (url, req) => {
   const opt = {
     method: "POST",
+    mode: "cors",
     cache: "no-cache",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(req),
