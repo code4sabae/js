@@ -67,4 +67,4 @@ imgutil.loadResizedImage = async (file, maxw, maxsize) => {
   return await imgutil.resizeImage(img, file.type, maxw);
 };
 
-export default imgutil;
+export { imgutil };

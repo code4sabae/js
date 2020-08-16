@@ -1,4 +1,4 @@
-import imgutil from "./imgutil.js";
+import { imgutil } from "./imgutil.js";
 
 class ImageUploader extends HTMLElement {
   constructor(uploadurl) {
