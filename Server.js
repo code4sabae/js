@@ -1,6 +1,7 @@
 import { createApp } from "https://servestjs.org/@v1.1.1/mod.ts";
 import { CONTENT_TYPE } from "./CONTENT_TYPE.js";
 import { UUID } from "./UUID.js";
+import { getExtension } from "./getExtension.js";
 
 class Server {
   constructor(port) {
@@ -37,10 +38,11 @@ class Server {
     app.handle(/\/data\/*/, async (req) => {
       try {
         if (req.method === "POST") {
+          const ext = getExtension(req.path, ".jpg");
           const bin = await req.arrayBuffer();
           console.log("[req data]", bin.length);
           const fn = getFileNameFromDate();
-          const name = fn + ".jpg";
+          const name = fn + ext;
           try {
             Deno.mkdirSync("data");
           } catch (e) {

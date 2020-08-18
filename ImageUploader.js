@@ -1,4 +1,5 @@
 import { imgutil } from "./imgutil.js";
+import { getExtension } from "./getExtension.js";
 
 class ImageUploader extends HTMLElement {
   constructor(uploadurl) {
@@ -32,6 +33,7 @@ class ImageUploader extends HTMLElement {
   get value() {
     return this.tf.value;
   }
+  // this.onload (callback)
   async setFile(file, maxwidth, maxsize) {
     const img = await imgutil.loadResizedImage(file, maxwidth, maxsize);
     img.orgwidth = img.width; // img.width が変わってしまうので保存 getArrayBufferFromImageで使う
@@ -46,17 +48,27 @@ class ImageUploader extends HTMLElement {
       img.style.width = (iw / img.height * img.width) + "vw";
     }
     img.style.display = "block";
-    this.upload(img);
+    this.upload(file, img).then((url) => {
+      if (this.onload) {
+        this.onload(url);
+      }
+    });
   }
-  async upload(img) {
-    const bin = await imgutil.getArrayBufferFromImage(img);
+  async upload(file, img) {
+    console.log(file.name);
+    const isjpg = getExtension(file.name, ".jpg").toLowerCase() === ".jpg";
+    const mimeType = isjpg ? "image/jpeg" : "image/png"; // image/webp も?
+    const quality = .9;
+    const bin = await imgutil.getArrayBufferFromImage(img, mimeType, quality);
     // console.log(bin);
 
     //const img2 = await imgutil.getImageFromArrayBuffer(bin);
     //this.appendChild(img2);
-    const res =
-      await (await fetch(this.uploadurl, { method: "POST", body: bin })).json();
-    this.tf.value = this.uploadurl + res.name;
+    const url = this.uploadurl + file.name;
+    const res = await fetch(url, { method: "POST", body: bin });
+    const json = await res.json();
+    this.tf.value = this.uploadurl + json.name;
+    return this.tf.value;
   }
 }
 customElements.define("img-uploader", ImageUploader);
