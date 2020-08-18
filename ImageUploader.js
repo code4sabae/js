@@ -30,6 +30,9 @@ class ImageUploader extends HTMLElement {
     this.tf = tf;
     this.c = c;
   }
+  set value(val) {
+    this.tf.value = val;
+  }
   get value() {
     return this.tf.value;
   }
@@ -54,13 +57,29 @@ class ImageUploader extends HTMLElement {
       }
     });
   }
+  async setImage(url) {
+    const img = new Image();
+    img.src = url;
+    await imgutil.waitImageLoad(img);
+    img.orgwidth = img.width; // img.width が変わってしまうので保存 getArrayBufferFromImageで使う
+    img.orgheight = img.height;
+    this.c.appendChild(img);
+    const iw = 28;
+    if (img.width > img.height) {
+      img.style.width = iw + "vw";
+      img.style.height = (iw / img.width * img.height) + "vw";
+    } else {
+      img.style.height = iw + "vw";
+      img.style.width = (iw / img.height * img.width) + "vw";
+    }
+    img.style.display = "block";
+    this.value = url;
+  }
   async upload(file, img) {
-    console.log(file.name);
     const isjpg = getExtension(file.name, ".jpg").toLowerCase() === ".jpg";
     const mimeType = isjpg ? "image/jpeg" : "image/png"; // image/webp も?
     const quality = .9;
     const bin = await imgutil.getArrayBufferFromImage(img, mimeType, quality);
-    // console.log(bin);
 
     //const img2 = await imgutil.getImageFromArrayBuffer(bin);
     //this.appendChild(img2);

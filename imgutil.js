@@ -39,7 +39,7 @@ imgutil.getImageFromArrayBuffer = async (bin) => {
   return img;
 };
 
-imgutil.resizeImage = async (img, type, maxw) => {
+imgutil.resizeImage = async (img, mimeType, maxw) => {
   const iw = img.width;
   const ih = img.height;
   if (Math.max(iw, ih) < maxw) {
@@ -51,7 +51,7 @@ imgutil.resizeImage = async (img, type, maxw) => {
   canvas.height = dh;
   const g = canvas.getContext("2d");
   g.drawImage(img, 0, 0, iw, ih, 0, 0, dw, dh);
-  const dataurl = canvas.toDataURL(type);
+  const dataurl = canvas.toDataURL(mimeType);
   const img2 = new Image();
   img2.src = dataurl;
   await imgutil.waitImageLoad(img2);
