@@ -37,28 +37,43 @@ class InputFile extends HTMLElement {
           this.imgc.removeChild(this.imgc.firstElementChild);
         }
       }
-      const update = (url) => {
-        inp2.value = this.value;
-      };
+      const files = [];
       for (const file of e.target.files) {
+        files.push(file);
+      }
+      // files.sort((a, b) => a.lastModified - b.lastModified); // 更新古い順
+      files.sort((a, b) => (a < b ? -1 : ((a > b ? 1 : 0)))); // 名前順
+      // console.log(files.map(f => f.name + " " + f.lastModified));
+      const ps = [];
+      for (const file of files) {
         const type = file.type;
-        if (type.startsWith("image/")) {
-          const imgup = new ImageUploader(uploadurl);
-          imgup.onload = update;
-          imgup.setFile(file, maxwidth, maxsize);
-          imgc.appendChild(imgup);
-        } else {
-          const inpurl = document.createElement("input");
-          imgc.appendChild(inpurl);
-          uploadFile(uploadurl, file, maxsize).then((url) => {
-            inpurl.value = url;
-            update(url);
-          });
-        }
+        const p = new Promise((res, rej) => {
+          try {
+            if (type.startsWith("image/")) {
+              const imgup = new ImageUploader(uploadurl);
+              imgup.onload = res;
+              imgup.setFile(file, maxwidth, maxsize);
+              imgc.appendChild(imgup);
+            } else {
+              const inpurl = document.createElement("input");
+              imgc.appendChild(inpurl);
+              uploadFile(uploadurl, file, maxsize).then((url) => {
+                inpurl.value = url;
+                res();
+              });
+            }
+          } catch (e) {
+            rej(e);
+          }
+        });
+        ps.push(p);
         if (!multiple) {
           break;
         }
       }
+      await Promise.all(ps);
+      inp2.value = this.value;
+      this.onupload({ target: this });
     };
   }
 
@@ -79,11 +94,9 @@ class InputFile extends HTMLElement {
       return;
     }
     const uploadurl = this.getAttribute("uploadurl");
-    console.log(urls);
     const url = urls.split(",");
     for (const n of url) {
       const imgup = new ImageUploader(uploadurl);
-      console.log(n);
       imgup.setImage(n);
       this.imgc.appendChild(imgup);
     }
