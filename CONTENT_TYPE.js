@@ -6,6 +6,7 @@ const CONTENT_TYPE = {
   "png": "image/png",
   "svg": "image/svg+xml",
   "txt": "text/plain; charset=utf8",
+  "css": "text/css",
 };
 
 export { CONTENT_TYPE };
