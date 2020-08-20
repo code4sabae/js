@@ -1,4 +1,4 @@
-import { createApp } from "https://servestjs.org/@v1.1.1/mod.ts";
+import { createApp } from "https://servestjs.org/@v1.1.2/mod.ts";
 import { CONTENT_TYPE } from "./CONTENT_TYPE.js";
 
 class Server {
