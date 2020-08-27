@@ -181,7 +181,7 @@ class Server {
           headers["Content-Range"] = "bytes " + range[0] + "-" + range[1] + "/" + totallen;
         }
         await req.respond({
-          status: 200,
+          status: range ? 206 : 200,
           headers: new Headers(headers),
           body: data,
         });
