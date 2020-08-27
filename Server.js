@@ -1,4 +1,4 @@
-import { createApp } from "https://servestjs.org/@v1.1.2/mod.ts";
+import { createApp } from "https://servestjs.org/@v1.1.3/mod.ts";
 import { CONTENT_TYPE } from "./CONTENT_TYPE.js";
 import { UUID } from "./UUID.js";
 import { getExtension } from "./getExtension.js";
@@ -141,16 +141,48 @@ class Server {
         return;
       }
       try {
+        const getRange = (req) => {
+          const range = req.headers.get("Range");
+          if (!range || !range.startsWith("bytes=")) {
+            return null;
+          }
+          const res = range.substring(6).split("-");
+          if (res.length === 0)
+            return null;
+          return res;
+        };
+        const range = getRange(req);
         const fn = req.path === "/" || req.path.indexOf("..") >= 0
           ? "/index.html"
           : req.path;
         const n = fn.lastIndexOf(".");
         const ext = n < 0 ? "html" : fn.substring(n + 1);
-        const data = Deno.readFileSync("static" + fn);
+        const readFileSync = (fn, range) => {
+          const data = Deno.readFileSync(fn);
+          if (!range) {
+            return [data, data.length];
+          }
+          const offset = parseInt(range[0]);
+          const len = range[1] ? parseInt(range[1]) - offset + 1 : data.length - offset;
+          const res = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            res[i] = data[offset + i];
+          }
+          return [res, data.length];
+        };
+        const [data, totallen] = readFileSync("static" + fn, range);
         const ctype = CONTENT_TYPE[ext] || "text/plain";
+        const headers = {
+          "Content-Type": ctype,
+          "Accept-Ranges": "bytes",
+          "Content-Length": data.length
+        };
+        if (range) {
+          headers["Content-Range"] = "bytes " + range[0] + "-" + range[1] + "/" + totallen;
+        }
         await req.respond({
           status: 200,
-          headers: new Headers({ "Content-Type": ctype }),
+          headers: new Headers(headers),
           body: data,
         });
       } catch (e) {
