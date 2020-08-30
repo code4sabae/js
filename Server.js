@@ -35,7 +35,7 @@ class Server {
       return ymd + "/" + UUID.generate();
     };
 
-    app.handle(/\/data\/*/, async (req) => {
+    const datafunc = async (req) => {
       try {
         if (req.method === "POST") {
           const ext = getExtension(req.path, ".jpg");
@@ -65,7 +65,7 @@ class Server {
             }),
             body: JSON.stringify(res),
           });
-        } else if (req.method === "GET") {
+        } else if (req.method === "GET" || req.method === "HEAD") {
           const fn = req.path;
           if (fn.indexOf("..") >= 0) {
             throw new Error("illegal filename");
@@ -77,15 +77,20 @@ class Server {
           await req.respond({
             status: 200,
             headers: new Headers(
-              { "Content-Type": ctype, "Access-Control-Allow-Origin": "*" },
+              {
+                "Content-Type": ctype,
+                "Access-Control-Allow-Origin": "*",
+                "Content-Length": data.length,
+              },
             ),
-            body: data,
+            body: req.method === "HEAD" ? null : data,
           });
         }
       } catch (e) {
         console.log("err", e.stack);
       }
-    });
+    };
+    app.handle(/\/data\/*/, datafunc);
 
     this.socks = [];
     let cnt = 0;
@@ -138,6 +143,10 @@ class Server {
 
     app.handle(/\/*/, async (req) => {
       if (req.path.startsWith("/ws/")) {
+        return;
+      }
+      if (req.path.startsWith("/data/")) {
+        datafunc(req);
         return;
       }
       try {
