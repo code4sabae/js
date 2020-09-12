@@ -14,7 +14,7 @@ class Client {
   async get() {
     for (;;) {
       const d = await this.ws.get();
-      if (d.type === "response") {
+      if (d.type === "response" || d.type === "push") {
         return d.data;
       }
     }
