@@ -14,6 +14,9 @@ class WebSocketClient {
       };
       const queue = [];
       ws.getSync = async () => {
+        if (queue.length > 0) {
+          return queue.shift();
+        }
         return new Promise((resolve) => {
           ws.onmessage2 = () => {
             resolve(queue.shift());
@@ -22,7 +25,8 @@ class WebSocketClient {
       };
       ws.onmessage = (mes) => {
         queue.push(mes);
-        ws.onmessage2();
+        if (ws.onmessage2)
+          ws.onmessage2();
       };
     })
   }
