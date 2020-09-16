@@ -79,7 +79,6 @@ class WebSocketClient {
   }
   async close() {
     await this.ws.closeSync();
-    this.ws.onmessage = null;
     this.ws = null;
   }
 }
