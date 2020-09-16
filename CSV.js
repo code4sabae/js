@@ -10,7 +10,7 @@ CSV.removeBOM = function (s) {
   return s;
 };
 CSV.decode = function (s) {
-  s = CSV.removeCSV(s);
+  s = CSV.removeBOM(s);
   const res = [];
   let st = 0;
   let line = [];
