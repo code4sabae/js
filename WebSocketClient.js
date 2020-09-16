@@ -35,17 +35,52 @@ class WebSocketClient {
           ws.onmessage2();
         }
       };
+      ws.closeSync = async () => {
+        const res = new Promise((resolve2) => {
+          ws.onclose2 = () => {
+            resolve2();
+            ws.onclose2 = null;
+          };
+        });
+        ws.close();
+        return res;
+      };
+      ws.onclose = () => {
+        if (ws.onclose2) {
+          ws.onclose2();
+        }
+        this.ws = null;
+      };
+      ws.onerror = () => {
+        this.ws = null;
+      };
     });
   }
   isConnected() {
     return this.ws != null;
   }
   send(json) {
-    this.ws.send(JSON.stringify(json));
+    if (this.ws) {
+      try {
+        this.ws.send(JSON.stringify(json));
+        return true;
+      } catch (e) {
+        //console.log(e);
+      }
+    }
+    return false;
   }
   async get() {
-    const data = await this.ws.getSync();
-    return JSON.parse(data.data);
+    if (this.ws) {
+      const data = await this.ws.getSync();
+      return JSON.parse(data.data);
+    }
+    return null;
+  }
+  async close() {
+    await this.ws.closeSync();
+    this.ws.onmessage = null;
+    this.ws = null;
   }
 }
 

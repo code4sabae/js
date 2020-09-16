@@ -9,15 +9,20 @@ class ClientSync {
     return this.ws.isConnected();
   }
   send(json) {
-    this.ws.send(json);
+    return this.ws.send(json);
   }
   async get() {
+    if (!this.isConnected())
+      return null;
     for (;;) {
       const d = await this.ws.get();
       if (d.type === "response" || d.type === "push" || d.type === "message") {
         return d.data;
       }
     }
+  }
+  async close() {
+    await this.ws.close();
   }
 }
 

@@ -257,6 +257,21 @@ class Server {
     return false;
   }
 
+  close(sockid) {
+    const sock = this.socks.find((s) => s.id === sockid);
+    if (!sock) {
+      return false;
+    }
+    try {
+      sock.close();
+    } catch (e) {
+    }
+    this.socks = this.socks.filter((s) => s !== sock);
+    console.log("removed", this.socks.length);
+    this.onclose(sock.id);
+    return true;
+  }
+
   // Web API
   api(path, req) { // to override
     return req;

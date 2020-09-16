@@ -14,6 +14,9 @@ class WebSocketServer {
   send(json) {
     this.server.send(this.sockid, json);
   }
+  close() {
+    this.server.close(this.sockid);
+  }
 }
 class ServerSync extends Server {
   constructor(port, callback) {
@@ -21,10 +24,11 @@ class ServerSync extends Server {
     this.callback = callback;
     this.wss = {};
   }
-  onopen(sockid) {
+  async onopen(sockid) {
     const ws = new WebSocketServer(this, sockid);
     this.wss[sockid] = ws;
-    this.callback(ws);
+    await this.callback(ws);
+    ws.close();
   }
   onclose(sockid) {
     delete this.wss[sockid];
