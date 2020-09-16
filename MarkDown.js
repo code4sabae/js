@@ -1,4 +1,4 @@
-import { marked } from "./marked.min.es.js";
+import { marked } from "./min/marked.min.es.js";
 
 class MarkDown extends HTMLElement {
   constructor() {
