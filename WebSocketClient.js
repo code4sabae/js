@@ -25,6 +25,7 @@ class WebSocketClient {
         return new Promise((resolve) => {
           ws.onmessage2 = () => {
             resolve(queue.shift());
+            ws.onmessage2 = null;
           };
         });
       };

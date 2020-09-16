@@ -14,7 +14,7 @@ class ClientSync {
   async get() {
     for (;;) {
       const d = await this.ws.get();
-      if (d.type === "response" || d.type === "push") {
+      if (d.type === "response" || d.type === "push" || d.type === "message") {
         return d.data;
       }
     }

@@ -217,7 +217,6 @@ class Server {
   }
 
   pushRaw(data) {
-    console.log(data);
     const sdata = JSON.stringify(data);
     const oksock = [];
     const errsock = [];
@@ -254,8 +253,8 @@ class Server {
       this.socks = this.socks.filter((s) => s !== sock);
       console.log("removed", this.socks.length);
       this.onclose(sock.id);
-      return false;
     }
+    return false;
   }
 
   // Web API
