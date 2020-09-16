@@ -1,13 +1,18 @@
 class WebSocketClient {
   async connect(path, host, port, secure) {
     if (host == null) {
-      const url = document.location.toString().match(/(http(s?)):\/\/([^:^\/]+)(:([0-9]+))\//);
+      const url = document.location.toString().match(
+        /(http(s?)):\/\/([^:^\/]+)(:([0-9]+))\//,
+      );
       secure = url[1] == "https";
       host = url[3];
       port = url[5] ? parseInt(url[5]) : 0;
     }
     return new Promise((resolve) => {
-      const ws = new WebSocket((secure ? "wss" : "ws") + "://" + host + (port ? ":" + port : "") + path);
+      const ws = new WebSocket(
+        (secure ? "wss" : "ws") + "://" + host + (port ? ":" + port : "") +
+          path,
+      );
       ws.onopen = () => {
         this.ws = ws;
         resolve(this);
@@ -25,10 +30,11 @@ class WebSocketClient {
       };
       ws.onmessage = (mes) => {
         queue.push(mes);
-        if (ws.onmessage2)
+        if (ws.onmessage2) {
           ws.onmessage2();
+        }
       };
-    })
+    });
   }
   isConnected() {
     return this.ws != null;

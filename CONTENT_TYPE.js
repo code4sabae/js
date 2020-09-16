@@ -17,6 +17,6 @@ const CONTENT_TYPE = {
   "mp3": "audio/mpeg",
   "wav": "audio/wav",
   "mp4": "video/mp4",
- };
+};
 
 export { CONTENT_TYPE };

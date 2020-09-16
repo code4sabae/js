@@ -30,7 +30,6 @@ class InputFile extends HTMLElement {
       const uploadurl = this.getAttribute("uploadurl");
       const maxwidth = this.getAttribute("maxwidth");
       const maxsize = this.getAttribute("maxsize");
-  
 
       if (!multiple) {
         while (this.imgc.firstElementChild) {

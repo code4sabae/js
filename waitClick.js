@@ -1,5 +1,5 @@
 const waitClick = async (c) => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const f = () => {
       c.removeEventListener("click", f);
       resolve();

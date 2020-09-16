@@ -19,8 +19,9 @@ class Server {
             "Content-Type": "application/json; charset=utf-8",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type, Accept", // 必要
-            "Access-Control-Allow-Methods": "PUT, DELETE, PATCH", // 必要? なくても動いた
-          }),
+            "Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
+          } // 必要? なくても動いた
+          ),
           body: JSON.stringify(res),
         });
       } catch (e) {
@@ -61,8 +62,9 @@ class Server {
               "Content-Type": "application/json; charset=utf-8",
               "Access-Control-Allow-Origin": "*",
               "Access-Control-Allow-Headers": "Content-Type, Accept", // 必要
-              "Access-Control-Allow-Methods": "PUT, DELETE, PATCH", // 必要? なくても動いた
-            }),
+              "Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
+            } // 必要? なくても動いた
+            ),
             body: JSON.stringify(res),
           });
         } else if (req.method === "GET" || req.method === "HEAD") {
@@ -156,8 +158,9 @@ class Server {
             return null;
           }
           const res = range.substring(6).split("-");
-          if (res.length === 0)
+          if (res.length === 0) {
             return null;
+          }
           return res;
         };
         const range = getRange(req);
@@ -172,7 +175,9 @@ class Server {
             return [data, data.length];
           }
           const offset = parseInt(range[0]);
-          const len = range[1] ? parseInt(range[1]) - offset + 1 : data.length - offset;
+          const len = range[1]
+            ? parseInt(range[1]) - offset + 1
+            : data.length - offset;
           const res = new Uint8Array(len);
           for (let i = 0; i < len; i++) {
             res[i] = data[offset + i];
@@ -184,10 +189,11 @@ class Server {
         const headers = {
           "Content-Type": ctype,
           "Accept-Ranges": "bytes",
-          "Content-Length": data.length
+          "Content-Length": data.length,
         };
         if (range) {
-          headers["Content-Range"] = "bytes " + range[0] + "-" + range[1] + "/" + totallen;
+          headers["Content-Range"] = "bytes " + range[0] + "-" + range[1] +
+            "/" + totallen;
         }
         await req.respond({
           status: range ? 206 : 200,

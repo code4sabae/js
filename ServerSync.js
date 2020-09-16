@@ -8,7 +8,7 @@ class WebSocketServer {
     this.sockid = sockid;
   }
   async get() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       resolvefunc = resolve;
     });
   }

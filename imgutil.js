@@ -5,7 +5,8 @@ const imgutil = {};
 imgutil.waitImageLoad = async (img) =>
   new Promise((res) => img.onload = () => res());
 
-imgutil.getBlobFromCanvas = async (canvas, mimetype, quality) => // defalut image/png
+imgutil.getBlobFromCanvas = async (canvas, mimetype, quality) =>
+  // defalut image/png
   new Promise((res) => canvas.toBlob((blob) => res(blob), mimetype, quality));
 
 imgutil.getArrayBufferFromBlob = async (blob) =>

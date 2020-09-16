@@ -11,6 +11,6 @@ const uploadFile = async (uploadurl, file, maxsize) => {
   const res = await fetch(url, { method: "POST", body: bin });
   const json = await res.json();
   return uploadurl + json.name;
-}
+};
 
 export { uploadFile };

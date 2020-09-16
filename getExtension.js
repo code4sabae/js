@@ -6,6 +6,6 @@ const getExtension = (fn, def) => {
     return def;
   }
   return fn.substring(n);
-}
+};
 
 export { getExtension };

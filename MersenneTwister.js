@@ -42,12 +42,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-
 // Methods whose name starts with "_" are private methods.
 // Don't call them externally!
 
 class MersenneTwister {
-	/**
+  /**
 	 * Constructor: MersenneTwister([integer/Array<integer> seed])
 	 * initializes the object with the given seed.
 	 * The seed may be an integer or an array of integers.
@@ -55,28 +54,28 @@ class MersenneTwister {
 	 * time: new Date().getTime().
 	 * See also: setSeed(seed).
 	 */
-	constructor(seed) {
-		if (seed === undefined) {
-			seed = new Date().getTime();
-		}
-		
-		this._mt = new Array(624);
-		this.setSeed(seed);
-	}
+  constructor(seed) {
+    if (seed === undefined) {
+      seed = new Date().getTime();
+    }
 
-	/** multiplies two uint32 values and returns a uint32 result. */
-	static _mulUint32(a, b) {
-		var a1 = a >>> 16, a2 = a & 0xffff;
-		var b1 = b >>> 16, b2 = b & 0xffff;
-		return (((a1 * b2 + a2 * b1) << 16) + a2 * b2) >>> 0;
-	}
+    this._mt = new Array(624);
+    this.setSeed(seed);
+  }
 
-	/** returns ceil(value) if value is finite number, otherwise 0. */
-	static _toNumber(x) {
-		return (typeof x == "number" && !isNaN(x)) ? Math.ceil(x) : 0;
-	}
+  /** multiplies two uint32 values and returns a uint32 result. */
+  static _mulUint32(a, b) {
+    var a1 = a >>> 16, a2 = a & 0xffff;
+    var b1 = b >>> 16, b2 = b & 0xffff;
+    return (((a1 * b2 + a2 * b1) << 16) + a2 * b2) >>> 0;
+  }
 
-	/**
+  /** returns ceil(value) if value is finite number, otherwise 0. */
+  static _toNumber(x) {
+    return (typeof x == "number" && !isNaN(x)) ? Math.ceil(x) : 0;
+  }
+
+  /**
 	 * Method: setSeed(integer/Array<integer> seed)
 	 * resets the seed. The seed may be an integer or an array of integers.
 	 * Elements in the seed array that are not numbers will be treated as 0.
@@ -85,74 +84,74 @@ class MersenneTwister {
 	 * This method is compatible with init_genrand and init_by_array function of
 	 * the original C version.
 	 */
-	setSeed(seed) {
-		const mt = this._mt;
-		if (typeof seed == "number") {
-			mt[0] = seed >>> 0;
-			for (let i = 1; i < mt.length; i++) {
-				const x = mt[i - 1] ^ (mt[i - 1] >>> 30);
-				mt[i] = MersenneTwister._mulUint32(1812433253, x) + i;
-			}
-			this._index = mt.length;
-		} else if (seed instanceof Array) {
-			let i = 1, j = 0;
-			this.setSeed(19650218);
-			for (let k = Math.max(mt.length, seed.length); k > 0; k--) {
-				let x = mt[i - 1] ^ (mt[i - 1] >>> 30);
-				x = MersenneTwister._mulUint32(x, 1664525);
-				mt[i] = (mt[i] ^ x) + (seed[j] >>> 0) + j;
-				if (++i >= mt.length) {
-					mt[0] = mt[mt.length-1];
-					i = 1;
-				}
-				if (++j >= seed.length) {
-					j = 0;
-				}
-			}
-			for (let k = mt.length - 1; k > 0; k--) {
-				let x = mt[i - 1] ^ (mt[i - 1] >>> 30);
-				x = MersenneTwister._mulUint32(x, 1566083941);
-				mt[i] = (mt[i] ^ x) - i;
-				if (++i >= mt.length) {
-					mt[0] = mt[mt.length-1];
-					i = 1;
-				}
-			}
-			mt[0] = 0x80000000;
-		} else {
-			throw new TypeError("MersenneTwister: illegal seed.");
-		}
-	}
+  setSeed(seed) {
+    const mt = this._mt;
+    if (typeof seed == "number") {
+      mt[0] = seed >>> 0;
+      for (let i = 1; i < mt.length; i++) {
+        const x = mt[i - 1] ^ (mt[i - 1] >>> 30);
+        mt[i] = MersenneTwister._mulUint32(1812433253, x) + i;
+      }
+      this._index = mt.length;
+    } else if (seed instanceof Array) {
+      let i = 1, j = 0;
+      this.setSeed(19650218);
+      for (let k = Math.max(mt.length, seed.length); k > 0; k--) {
+        let x = mt[i - 1] ^ (mt[i - 1] >>> 30);
+        x = MersenneTwister._mulUint32(x, 1664525);
+        mt[i] = (mt[i] ^ x) + (seed[j] >>> 0) + j;
+        if (++i >= mt.length) {
+          mt[0] = mt[mt.length - 1];
+          i = 1;
+        }
+        if (++j >= seed.length) {
+          j = 0;
+        }
+      }
+      for (let k = mt.length - 1; k > 0; k--) {
+        let x = mt[i - 1] ^ (mt[i - 1] >>> 30);
+        x = MersenneTwister._mulUint32(x, 1566083941);
+        mt[i] = (mt[i] ^ x) - i;
+        if (++i >= mt.length) {
+          mt[0] = mt[mt.length - 1];
+          i = 1;
+        }
+      }
+      mt[0] = 0x80000000;
+    } else {
+      throw new TypeError("MersenneTwister: illegal seed.");
+    }
+  }
 
-	/** returns the next random Uint32 value. */
-	_nextInt() {
-		const mt = this._mt;
-		let value;
-		
-		if (this._index >= mt.length) {
-			var k = 0, N = mt.length, M = 397;
-			do {
-				value = (mt[k] & 0x80000000) | (mt[k + 1] & 0x7fffffff);
-				mt[k] = mt[k + M] ^ (value >>> 1) ^ ((value & 1) ? 0x9908b0df : 0);
-			} while (++k < N - M);
-			do {
-				value = (mt[k] & 0x80000000) | (mt[k + 1] & 0x7fffffff);
-				mt[k] = mt[k + M - N] ^ (value >>> 1) ^ ((value & 1) ? 0x9908b0df : 0);
-			} while (++k < N - 1);
-			value = (mt[N - 1] & 0x80000000) | (mt[0] & 0x7fffffff);
-			mt[N - 1] = mt[M - 1] ^ (value >>> 1) ^ ((value & 1) ? 0x9908b0df : 0);
-			this._index = 0;
-		}
-		
-		value = mt[this._index++];
-		value ^=  value >>> 11;
-		value ^= (value <<   7) & 0x9d2c5680;
-		value ^= (value <<  15) & 0xefc60000;
-		value ^=  value >>> 18;
-		return value >>> 0;
-	}
+  /** returns the next random Uint32 value. */
+  _nextInt() {
+    const mt = this._mt;
+    let value;
 
-	/**
+    if (this._index >= mt.length) {
+      var k = 0, N = mt.length, M = 397;
+      do {
+        value = (mt[k] & 0x80000000) | (mt[k + 1] & 0x7fffffff);
+        mt[k] = mt[k + M] ^ (value >>> 1) ^ ((value & 1) ? 0x9908b0df : 0);
+      } while (++k < N - M);
+      do {
+        value = (mt[k] & 0x80000000) | (mt[k + 1] & 0x7fffffff);
+        mt[k] = mt[k + M - N] ^ (value >>> 1) ^ ((value & 1) ? 0x9908b0df : 0);
+      } while (++k < N - 1);
+      value = (mt[N - 1] & 0x80000000) | (mt[0] & 0x7fffffff);
+      mt[N - 1] = mt[M - 1] ^ (value >>> 1) ^ ((value & 1) ? 0x9908b0df : 0);
+      this._index = 0;
+    }
+
+    value = mt[this._index++];
+    value ^= value >>> 11;
+    value ^= (value << 7) & 0x9d2c5680;
+    value ^= (value << 15) & 0xefc60000;
+    value ^= value >>> 18;
+    return value >>> 0;
+  }
+
+  /**
 	 * Method: nextInt([[number min,] number max])
 	 * returns a random integer that is greater than or equal to min and less than
 	 * max. The value of (max - min) must be positive number less or equal to 2^32.
@@ -162,39 +161,41 @@ class MersenneTwister {
 	 * This method is compatible with genrand_int32 function of the original C
 	 * version for min=0 & max=2^32, but not with genrand_int31 function.
 	 */
-	nextInt(min, sup) {
-		if (!min) {
-			return this._nextInt();
-		}
-		if (!sup) {
-			sup = MersenneTwister._toNumber(min);
-			min = 0;
-		} else {
-			min = MersenneTwister._toNumber(min);
-			sup = MersenneTwister._toNumber(sup) - min;
-		}
-		if (!(0 < sup && sup < 0x100000000))
-			return this._nextInt() + min;
-		if ((sup & (~sup + 1)) == sup)
-			return ((sup - 1) & this._nextInt()) + min;
-		
-		let value;
-		do {
-			value = this._nextInt();
-		} while (sup > 4294967296 - (value - (value %= sup)));
-		return value + min;
-	}
+  nextInt(min, sup) {
+    if (!min) {
+      return this._nextInt();
+    }
+    if (!sup) {
+      sup = MersenneTwister._toNumber(min);
+      min = 0;
+    } else {
+      min = MersenneTwister._toNumber(min);
+      sup = MersenneTwister._toNumber(sup) - min;
+    }
+    if (!(0 < sup && sup < 0x100000000)) {
+      return this._nextInt() + min;
+    }
+    if ((sup & (~sup + 1)) == sup) {
+      return ((sup - 1) & this._nextInt()) + min;
+    }
 
-	/**
+    let value;
+    do {
+      value = this._nextInt();
+    } while (sup > 4294967296 - (value - (value %= sup)));
+    return value + min;
+  }
+
+  /**
 	 * Method: next()
 	 * returns a random number that is greater than or equal to 0 and less than 1.
 	 * This method is compatible with genrand_res53 function of the original C
 	 * version.
 	 */
-	next() {
-		const a = this._nextInt() >>> 5, b = this._nextInt() >>> 6;
-		return (a * 0x4000000 + b) / 0x20000000000000; 
-	}
+  next() {
+    const a = this._nextInt() >>> 5, b = this._nextInt() >>> 6;
+    return (a * 0x4000000 + b) / 0x20000000000000;
+  }
 }
 
 export { MersenneTwister };
