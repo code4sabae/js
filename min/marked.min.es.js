@@ -1,3 +1,4 @@
+// deno-fmt-ignore-file
 /**
  * marked - a markdown parser
  * Copyright (c) 2011-2019, Christopher Jeffrey. (MIT Licensed)
