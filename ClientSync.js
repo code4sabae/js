@@ -12,8 +12,9 @@ class ClientSync {
     return this.ws.send(json);
   }
   async get() {
-    if (!this.isConnected())
+    if (!this.isConnected()) {
       return null;
+    }
     for (;;) {
       const d = await this.ws.get();
       if (d.type === "response" || d.type === "push" || d.type === "message") {
