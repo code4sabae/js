@@ -27578,6 +27578,6 @@ globalThis.ed25519 = ed25519;
 
 },{"ed25519-wasm-pro":191}]},{},[192]);
 
-const ed25519 = globalThis.ed25519;
+const Ed25519 = globalThis.ed25519;
 
-export { ed25519 };
+export { Ed25519 };
