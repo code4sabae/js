@@ -207,7 +207,8 @@ class Server {
       }
     });
 
-    app.listen({ port });
+    const hostname = "::";
+    app.listen({ port, hostname });
 
     console.log(`http://localhost:${port}/`);
   }
