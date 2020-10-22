@@ -1,21 +1,56 @@
 const ECDH = {};
 
+const NAMED_CURVE = "P-521";
+
 ECDH.generateKeyPair = async () => {
-  return await window.crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-384" }, false, ["deriveKey"]);
+  const canexport = true;
+  return await window.crypto.subtle.generateKey(
+    { name: "ECDH", namedCurve: NAMED_CURVE },
+    canexport,
+    ["deriveKey"]
+  );
 };
 
 ECDH.getPublicKey = async (keypair) => {
   const exported = await window.crypto.subtle.exportKey("raw", keypair.publicKey);
-  const exportedKeyBuffer = new Uint8Array(exported);
-  return exportedKeyBuffer;
+  return new Uint8Array(exported);
+};
+
+ECDH.getPrivateKey = async (keypair) => {
+  return await window.crypto.subtle.exportKey("jwk", keypair.privateKey);
+};
+
+ECDH.importKeyPair = async (pubkey, prikey) => {
+  const canexport = false;
+  try {
+    const publicKey = await window.crypto.subtle.importKey(
+      "raw",
+      pubkey,
+      { name: "ECDH", namedCurve: NAMED_CURVE },
+      canexport,
+      []
+    );
+    const privateKey = await window.crypto.subtle.importKey(
+      "jwk",
+      prikey,
+      { name: "ECDH", namedCurve: NAMED_CURVE },
+      canexport,
+      ["deriveKey"]
+    );
+    return { publicKey, privateKey };
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
 };
 
 ECDH.deriveSecretKey = async (keypair, publicKey) => {
+  const canexport = true;
   const importedKey = await window.crypto.subtle.importKey(
     "raw",
     publicKey,
-    { name: "ECDH", namedCurve: "P-384" },
-    false,
+    { name: "ECDH", namedCurve: NAMED_CURVE },
+    canexport,
     []
   );
 
@@ -23,7 +58,23 @@ ECDH.deriveSecretKey = async (keypair, publicKey) => {
     { name: "ECDH", public: importedKey },
     keypair.privateKey,
     { name: "AES-GCM", length: 256 },
-    false,
+    canexport,
+    ["encrypt", "decrypt"]
+  );
+};
+
+ECDH.exportSecretKey = async (key) => {
+  const exported = await window.crypto.subtle.exportKey("raw", key);
+  return new Uint8Array(exported);
+};
+
+ECDH.importSecretKey = async (key) => {
+  const canexport = true;
+  return await window.crypto.subtle.importKey(
+    "raw",
+    key,
+    { name: "AES-GCM", length: 256 },
+    canexport,
     ["encrypt", "decrypt"]
   );
 };
@@ -45,7 +96,11 @@ ECDH.decrypt = async (secretKey, iv, ciphertext) => {
 };
 
 ECDH.decryptText = async (secretKey, iv, ciphertext) => {
-  return new TextDecoder().decode(await ECDH.decrypt(secretKey, iv, ciphertext));
+  try {
+    return new TextDecoder().decode(await ECDH.decrypt(secretKey, iv, ciphertext));
+  } catch (e) {
+    return "error!! " + e;
+  }
 };
 
 export { ECDH };
