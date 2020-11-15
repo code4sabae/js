@@ -153,6 +153,11 @@ CSV.fromJSON = function (json) {
   }
   return res;
 };
+CSV.fetch = async (url) => {
+  const data = await (await fetch(url)).text();
+  const csv = CSV.decode(data);
+  return csv;
+};
 CSV.makeTable = (csv) => {
   const c = (tag) => document.createElement(tag);
   const tbl = c("table");
