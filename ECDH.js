@@ -1,6 +1,7 @@
 const ECDH = {};
 
-const NAMED_CURVE = "P-521";
+//const NAMED_CURVE = "P-521";
+const NAMED_CURVE = "P-384";
 
 ECDH.generateKeyPair = async () => {
   const canexport = true;
