@@ -153,5 +153,33 @@ CSV.fromJSON = function (json) {
   }
   return res;
 };
+CSV.makeTable = (csv) => {
+  const c = (tag) => document.createElement(tag);
+  const tbl = c("table");
+  const tr0 = c("tr");
+  tbl.appendChild(tr0);
+  for (let i = 0; i < csv[0].length; i++) {
+    const th = c("th");
+    tr0.appendChild(th);
+    th.textContent = csv[0][i];
+  }
+  for (let i = 1; i < csv.length; i++) {
+    const tr = c("tr");
+    tbl.appendChild(tr);
+    for (let j = 0; j < csv[i].length; j++) {
+      const td = c("td");
+      tr.appendChild(td);
+      const s = csv[i][j];
+      if (s.startsWith("http://") || s.startsWith("https://")) {
+        const a = c("a");
+        a.href = a.textContent = s;
+        td.appendChild(a);
+      } else {
+        td.textContent = s;
+      }
+    }
+  }
+  return tbl;
+};
 
 export { CSV };
