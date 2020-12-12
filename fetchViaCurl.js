@@ -8,4 +8,10 @@ const fetchViaCurl = async (url) => {
   p.close();
 };
 
-export { fetchViaCurl };
+const fetchTextViaCurl = async (url) => {
+  await fetchViaCurl(url);
+  const path = getPath(url);
+  return await Deno.readTextFile("data/" + path);
+};
+
+export { fetchViaCurl, fetchTextViaCurl };
