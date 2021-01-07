@@ -97,4 +97,12 @@ const JAPAN_PREF_EN = [
   "Okinawa",
 ];
 
-export { JAPAN_PREF, JAPAN_PREF_EN };
+const JAPAN_PREF_ISO = (() => {
+  const res = [];
+  for (let i = 1; i <= 47; i++) {
+    res.push("JP-" + (i < 10 ? "0" : "") + i);
+  }
+  return res;
+})();
+
+export { JAPAN_PREF, JAPAN_PREF_EN, JAPAN_PREF_ISO };
