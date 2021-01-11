@@ -16,10 +16,15 @@ const tbl2 = makeTable(map2);
 
 const SJIS = {};
 
-SJIS.decode = (sjis) => {
+SJIS.decode = (sjis, len) => {
 	const ss = [];
 	let n = 0;
-	const len = sjis.length;
+	if (len == null) {
+		len = sjis.length;
+	} else if (len > sjis.length) {
+		len = sjis.length;
+	}
+	const cerr = String.fromCharCode(65533);
 	while (n < len) {
 		const m = sjis[n++];
 		const c = tbl1[m];
@@ -32,10 +37,20 @@ SJIS.decode = (sjis) => {
 		if (c2) {
 			ss.push(c2);
 			continue;
+		} else {
+			ss.push(cerr);
 		}
 		n--;
 	}
 	return ss.join("");
+};
+SJIS.isSJIS = (sjis) => {
+	const cerr = String.fromCharCode(65533);
+	const s = SJIS.decode(sjis, 10000);
+	return s.indexOf(cerr) === -1;
+};
+SJIS.decodeAuto = (bin) => {
+  return SJIS.isSJIS(bin) ? SJIS.decode(bin) : new TextDecoder().decode(bin);
 };
 
 export { SJIS };
