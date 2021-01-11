@@ -1,3 +1,5 @@
+import { SJIS } from "https://code4sabae.github.io/js/SJIS.js";
+
 const CSV = {};
 
 CSV.addBOM = function (s) {
@@ -153,8 +155,13 @@ CSV.fromJSON = function (json) {
   }
   return res;
 };
-CSV.fetch = async (url) => {
+CSV.fetchUtf8 = async (url) => {
   const data = await (await fetch(url)).text();
+  const csv = CSV.decode(data);
+  return csv;
+};
+CSV.fetch = async (url) => {
+  const data = SJIS.decodeAuto(new Uint8Array(await (await fetch(url)).arrayBuffer()))
   const csv = CSV.decode(data);
   return csv;
 };
