@@ -11,7 +11,7 @@ class Server {
       try {
         const json = req.method === "POST" ? await req.json() : null;
         console.log("[req api]", json);
-        const res = this.api(req.path, json);
+        const res = await this.api(req.path, json);
         console.log("[res api]", res);
         await req.respond({
           status: 200,
