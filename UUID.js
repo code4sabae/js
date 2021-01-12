@@ -29,7 +29,7 @@ UUID.isValid = (uuid) => {
   return UUID_MATCHER.test(uuid);
 };
 
-const n = UUID.generate();
-console.log(n, UUID.isValid(n));
+// const n = UUID.generate();
+// console.log(n, UUID.isValid(n));
 
 export { UUID };
