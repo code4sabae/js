@@ -88,6 +88,8 @@ CSV.encode = function (csvar) {
         s2.push("");
       } else if (typeof v == "number") {
         s2.push(v);
+      } else if (typeof v != "string") {
+        s2.push('"' + v + '"');
       } else if (v.indexOf('"') >= 0) {
         s2.push('"' + v.replace(/\"/g, '""') + '"');
       } else if (v.indexOf(",") >= 0 || v.indexOf("\n") >= 0) {
