@@ -1,4 +1,4 @@
-import { createApp } from "https://servestjs.org/@v1.1.3/mod.ts";
+import { createApp } from "https://servestjs.org/@v1.1.9/mod.ts";
 import { CONTENT_TYPE } from "./CONTENT_TYPE.js";
 import { UUID } from "./UUID.js";
 import { getExtension } from "./getExtension.js";
