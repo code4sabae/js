@@ -49,14 +49,14 @@ class CSVMap extends HTMLElement {
     console.log(data);
     const lls = [];
     for (const d of data) {
-      const lat = d["schema:latitude"];
-      const long = d["schema:longitude"];
+      const lat = d["schema:latitude"] || d["lattiude"] || d["lat"] || d["緯度"];
+      const long = d["schema:longitude"] || d["longitude"] || d["lng"] || d["lon"] || d["経度"];
       if (!lat || !long) {
         continue;
       }
       const ll = [lat, long];
-      const title = d["schema:name"];
-      const url = d["schema:url"];
+      const title = d["schema:name"] || d["name"];
+      const url = d["schema:url"] || d["url"];
       const opt = { title };
       if (icon) {
         opt.icon = L.icon({
