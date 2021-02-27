@@ -9,7 +9,20 @@ class Server {
 
     app.handle(/\/api\/*/, async (req) => {
       try {
-        const json = req.method === "POST" ? await req.json() : null;
+        const json = await (async () => {
+          if (req.method === "POST") {
+            return await req.json();
+          } else if (req.method === "GET") {
+            const n = req.url.indexOf("?");
+            const sjson = decodeURIComponent(req.url.substring(n + 1));
+            try {
+              return JSON.parse(sjson);
+            } catch (e) {
+              return sjson;
+            }
+          }
+          return null;
+        })();
         console.log("[req api]", json);
         const res = await this.api(req.path, json);
         console.log("[res api]", res);
