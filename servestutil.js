@@ -7,12 +7,15 @@ const resHTML = async (req, html) => {
     body: html,
   });
 };
-const resJSON = async (req, data) => {
+const resJSON = async (req, data, alloworigin) => {
+  if (!alloworigin) {
+    alloworigin = "*";
+  }
   await req.respond({
     status: 200,
     headers: new Headers({
       "Content-Type": "application/json; charset=utf-8",
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": alloworigin,
       "Access-Control-Allow-Headers": "Content-Type, Accept",
     }),
     body: JSON.stringify(data),
@@ -42,9 +45,9 @@ const resTempRedirect = async (req, url) => {
 };
 
 // handle
-const handleJSON = async (req, api) => { // async api(path, json)
+const handleJSON = async (req, api, alloworigin) => { // async api(path, json)
   if (req.method === "OPTIONS") {
-    await resJSON(req, "ok");
+    await resJSON(req, "ok", alloworigin);
     return;
   }
   try {
@@ -67,7 +70,7 @@ const handleJSON = async (req, api) => { // async api(path, json)
     console.log("[req api]", json);
     const res = await api(req.path, json);
     console.log("[res api]", res);
-    await resJSON(req, res);
+    await resJSON(req, res, alloworigin);
   } catch (e) {
     console.log("err", e.stack);
   }
