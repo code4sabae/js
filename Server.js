@@ -8,6 +8,20 @@ class Server {
     const app = createApp();
 
     app.handle(/\/api\/*/, async (req) => {
+      if (req.method === "OPTIONS") {
+        const res = "ok";
+        await req.respond({
+          status: 200,
+          headers: new Headers({
+            "Content-Type": "application/json; charset=utf-8",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type, Accept",
+            // "Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
+          }),
+          body: JSON.stringify(res),
+        });
+        return;
+      }
       try {
         const json = await (async () => {
           if (req.method === "POST") {
@@ -31,10 +45,9 @@ class Server {
           headers: new Headers({
             "Content-Type": "application/json; charset=utf-8",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type, Accept", // 必要
-            "Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
-          } // 必要? なくても動いた
-          ),
+            "Access-Control-Allow-Headers": "Content-Type, Accept", // must
+            //"Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
+          }),
           body: JSON.stringify(res),
         });
       } catch (e) {
@@ -74,10 +87,9 @@ class Server {
             headers: new Headers({
               "Content-Type": "application/json; charset=utf-8",
               "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Headers": "Content-Type, Accept", // 必要
-              "Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
-            } // 必要? なくても動いた
-            ),
+              "Access-Control-Allow-Headers": "Content-Type, Accept", // must
+              //"Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
+            }),
             body: JSON.stringify(res),
           });
         } else if (req.method === "GET" || req.method === "HEAD") {
