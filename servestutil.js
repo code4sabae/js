@@ -8,18 +8,17 @@ const resHTML = async (req, html) => {
   });
 };
 const resJSON = async (req, data, alloworigin) => {
-  if (!alloworigin) {
-    alloworigin = "*";
-  }
-  await req.respond({
-    status: 200,
-    headers: new Headers({
-      "Content-Type": "application/json; charset=utf-8",
-      "Access-Control-Allow-Origin": alloworigin,
-      "Access-Control-Allow-Headers": "Content-Type, Accept",
-    }),
-    body: JSON.stringify(data),
+  const headers = new Headers({
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Headers": "Content-Type, Accept",
   });
+  if (!alloworigin) {
+    headers.set("Access-Control-Allow-Origin", "*");
+  } else {
+    headers.set("Access-Control-Allow-Origin", alloworigin);
+    headers.set("Vary", "Origin");
+  }
+  await req.respond({ status: 200, headers, body: JSON.stringify(data) });
 };
 const resText = async (req, text) => {
   await req.respond({
