@@ -38,7 +38,7 @@ class Server {
           return null;
         })();
         console.log("[req api]", json);
-        const res = await this.api(req.path, json);
+        const res = await this.api(req.path, json, req);
         console.log("[res api]", res);
         await req.respond({
           status: 200,
