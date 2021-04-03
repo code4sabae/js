@@ -40,7 +40,11 @@ class CSVMap extends HTMLElement {
       for (const name in d) {
         const val = d[name];
         if (val) {
-          tbl.push(`<tr><th>${name}</th><td>${d[name]}</td></tr>`);
+          if (name == "sabaecc:geo3x3") {
+            tbl.push(`<tr><th>${name}</th><td><a href=https://code4sabae.github.io/geo3x3-map/#${d[name]}>${d[name]}</a></td></tr>`);
+          } else {
+            tbl.push(`<tr><th>${name}</th><td>${d[name]}</td></tr>`);
+          }
         }
       }
       tbl.push("</table>");
@@ -54,7 +58,6 @@ class CSVMap extends HTMLElement {
         const geo3x3 = d["sabaecc:geo3x3"] || d["geo3x3"];
         if (geo3x3) {
           const pos = Geo3x3.decode(geo3x3);
-          console.log("geo", pos);
           return [pos.lat, pos.lng];
         }
         const lat = d["schema:latitude"] || d["lattiude"] || d["lat"] || d["緯度"] || d["ic:緯度"];
