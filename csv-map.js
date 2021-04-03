@@ -1,5 +1,6 @@
 import L from "https://code4sabae.github.io/leaflet-mjs/leaflet.mjs";
 import { CSV } from "https://code4sabae.github.io/js/CSV.js";
+import { Geo3x3 } from "https://taisukef.github.io/Geo3x3/Geo3x3.mjs";
 
 class CSVMap extends HTMLElement {
   constructor () {
@@ -49,12 +50,21 @@ class CSVMap extends HTMLElement {
     console.log(data);
     const lls = [];
     for (const d of data) {
-      const lat = d["schema:latitude"] || d["lattiude"] || d["lat"] || d["緯度"];
-      const long = d["schema:longitude"] || d["longitude"] || d["lng"] || d["lon"] || d["経度"];
-      if (!lat || !long) {
+      const getLatLng = (d) => {
+        const geo3x3 = d["sabaecc:geo3x3"] || d["geo3x3"];
+        if (geo3x3) {
+          const pos = Geo3x3.decode(geo3x3);
+          console.log("geo", pos);
+          return [pos.lat, pos.lng];
+        }
+        const lat = d["schema:latitude"] || d["lattiude"] || d["lat"] || d["緯度"] || d["ic:緯度"];
+        const lng = d["schema:longitude"] || d["longitude"] || d["lng"] || d["lon"] || d["経度"] || d["ic:経度"];
+        return [lat, lng];
+      };
+      const ll = getLatLng(d);
+      if (!ll) {
         continue;
       }
-      const ll = [lat, long];
       const title = d["schema:name"] || d["name"];
       const url = d["schema:url"] || d["url"];
       const opt = { title };
