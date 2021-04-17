@@ -1,26 +1,26 @@
-import { createApp } from "https://servestjs.org/@v1.1.9/mod.ts";
-import { CONTENT_TYPE } from "./CONTENT_TYPE.js";
-import { UUID } from "./UUID.js";
-import { getExtension } from "./getExtension.js";
+import { CONTENT_TYPE } from "https://js.sabae.cc/CONTENT_TYPE.js";
+import { UUID } from "https://js.sabae.cc/UUID.js";
+import { getExtension } from "https://js.sabae.cc/getExtension.js";
 
 class Server {
   constructor(port) {
-    const app = createApp();
-
-    app.handle(/\/api\/*/, async (req) => {
+    this.start(port);
+  }
+  async start(port) {
+    const handleApi = async (req) => {
+      const url = req.url;
+      const path = url.indexOf("?") < 0 ? url : url.substring(0, url.indexOf("?"));
       if (req.method === "OPTIONS") {
         const res = "ok";
-        await req.respond({
+        return new Response(JSON.stringify(res), {
           status: 200,
           headers: new Headers({
             "Content-Type": "application/json; charset=utf-8",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type, Accept",
             // "Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
-          }),
-          body: JSON.stringify(res),
+          })
         });
-        return;
       }
       try {
         const json = await (async () => {
@@ -38,22 +38,22 @@ class Server {
           return null;
         })();
         console.log("[req api]", json);
-        const res = await this.api(req.path, json, req);
+        const res = await this.api(path, json);
         console.log("[res api]", res);
-        await req.respond({
+        return new Response(JSON.stringify(res), {
           status: 200,
           headers: new Headers({
             "Content-Type": "application/json; charset=utf-8",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type, Accept", // must
             //"Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
-          }),
-          body: JSON.stringify(res),
+          })
         });
       } catch (e) {
         console.log("err", e.stack);
       }
-    });
+      return null;
+    };
 
     const getFileNameFromDate = () => {
       const d = new Date();
@@ -62,11 +62,13 @@ class Server {
       return ymd + "/" + UUID.generate();
     };
 
-    const datafunc = async (req) => {
+    const handleData = async (req) => {
+      const url = req.url;
+      const path = url.indexOf("?") < 0 ? url : url.substring(0, url.indexOf("?"));
       try {
         if (req.method === "POST") {
-          const ext = getExtension(req.path, ".jpg");
-          const bin = await req.arrayBuffer();
+          const ext = getExtension(path, ".jpg");
+          const bin = new Uint8Array(await req.arrayBuffer());
           console.log("[req data]", bin.length);
           const fn = getFileNameFromDate();
           const name = fn + ext;
@@ -82,18 +84,17 @@ class Server {
           Deno.writeFileSync("data/" + name, bin);
           const res = { name };
           console.log("[data res]", res);
-          await req.respond({
+          return new Response(JSON.stringify(res), {
             status: 200,
             headers: new Headers({
               "Content-Type": "application/json; charset=utf-8",
               "Access-Control-Allow-Origin": "*",
               "Access-Control-Allow-Headers": "Content-Type, Accept", // must
               //"Access-Control-Allow-Methods": "PUT, DELETE, PATCH",
-            }),
-            body: JSON.stringify(res),
+            })
           });
         } else if (req.method === "GET" || req.method === "HEAD") {
-          const fn = req.path;
+          const fn = path;
           if (fn.indexOf("..") >= 0) {
             throw new Error("illegal filename");
           }
@@ -101,7 +102,7 @@ class Server {
           const ext = n < 0 ? "html" : fn.substring(n + 1);
           const data = Deno.readFileSync("." + fn);
           const ctype = CONTENT_TYPE[ext] || "text/plain";
-          await req.respond({
+          return new Response(req.method === "HEAD" ? null : data, {
             status: 200,
             headers: new Headers(
               {
@@ -109,73 +110,17 @@ class Server {
                 "Access-Control-Allow-Origin": "*",
                 "Content-Length": data.length,
               },
-            ),
-            body: req.method === "HEAD" ? null : data,
+            )
           });
         }
       } catch (e) {
         console.log("err", e.stack);
       }
     };
-    app.handle(/\/data\/*/, datafunc);
 
-    this.socks = [];
-    let cnt = 0;
-    app.ws("/ws/", async (sock) => {
-      sock.id = UUID.generate();
-      cnt++;
-      this.onopen(sock.id);
-
-      this.socks.push(sock);
-      const members = this.socks.map((s) => {
-        return { id: s.id };
-      });
-      sock.send(JSON.stringify({ type: "init", from: sock.id, members }));
-
-      console.log("added", this.socks.length);
-      /* // 呼び出されない
-      const funcremove = (e) => {
-        this.socks = this.socks.filter((a) => a !== e.target);
-        console.log("removed", this.socks.length);
-      };
-      sock.onclose = sock.onerror = funcremove;
-      */
-      for await (const msg of sock) {
-        if (typeof msg === "string") {
-          try {
-            console.log("ws", msg);
-            const req = JSON.parse(msg);
-            const res = this.onmessage(sock.id, req);
-            if (res) {
-              const mesres = { type: "response", from: sock.id, data: res };
-              sock.send(JSON.stringify(mesres));
-            }
-          } catch (e) {
-            console.log(e);
-          }
-        } else {
-          console.log("err on ws", msg);
-          // ws { code: 0, reason: "" } -- close
-          // ws { code: 1001, reason: "" } -- 遮断
-          break;
-        }
-      }
-      const newsocks = this.socks.filter((s) => s !== sock);
-      if (newsocks.length !== this.socks.length) {
-        this.socks = newsocks;
-        console.log("removed", this.socks.length);
-        this.onclose(sock.id);
-      }
-    });
-
-    app.handle(/\/*/, async (req) => {
-      if (req.path.startsWith("/ws/")) {
-        return;
-      }
-      if (req.path.startsWith("/data/")) {
-        datafunc(req);
-        return;
-      }
+    const handleWeb = async (req) => {
+      const url = req.url;
+      const path = url.indexOf("?") < 0 ? url : url.substring(0, url.indexOf("?"));
       try {
         const getRange = (req) => {
           const range = req.headers.get("Range");
@@ -189,9 +134,7 @@ class Server {
           return res;
         };
         const range = getRange(req);
-        const fn = req.path === "/" || req.path.indexOf("..") >= 0
-          ? "/index.html"
-          : req.path;
+        const fn = path === "/" || path.indexOf("..") >= 0 ? "/index.html" : path;
         const n = fn.lastIndexOf(".");
         const ext = n < 0 ? "html" : fn.substring(n + 1);
         const readFileSync = (fn, range) => {
@@ -200,9 +143,7 @@ class Server {
             return [data, data.length];
           }
           const offset = parseInt(range[0]);
-          const len = range[1]
-            ? parseInt(range[1]) - offset + 1
-            : data.length - offset;
+          const len = range[1] ? parseInt(range[1]) - offset + 1 : data.length - offset;
           const res = new Uint8Array(len);
           for (let i = 0; i < len; i++) {
             res[i] = data[offset + i];
@@ -220,101 +161,47 @@ class Server {
           headers["Content-Range"] = "bytes " + range[0] + "-" + range[1] +
             "/" + totallen;
         }
-        await req.respond({
+        return new Response(data, {
           status: range ? 206 : 200,
           headers: new Headers(headers),
-          body: data,
         });
       } catch (e) {
-        if (req.path !== "/favicon.ico") {
-          console.log("err", req.path, e.stack);
+        if (path !== "/favicon.ico") {
+          console.log("err", path, e.stack);
         }
       }
-    });
+    };
+    console.log(`http://localhost:${port}/`);
 
     const hostname = "::";
-    app.listen({ port, hostname });
-
-    console.log(`http://localhost:${port}/`);
-  }
-
-  push(sockid, data) {
-    this.pushRaw({ type: "push", from: sockid, data: data });
-  }
-
-  pushRaw(data) {
-    const sdata = JSON.stringify(data);
-    const oksock = [];
-    const errsock = [];
-    this.socks.forEach((s) => {
-      try {
-        s.send(JSON.stringify(data));
-        oksock.push(s);
-      } catch (e) {
-        errsock.push(s);
-      }
-    });
-    if (oksock.length !== this.socks.length) {
-      this.socks = oksock;
-      errsock.forEach((s) => {
-        try {
-          this.onclose(s.id);
-        } catch (e) {
+    const err = new TextEncoder().encode("not found");
+    for await (const conn of Deno.listen({ port, hostname })) {
+      (async () => {
+        for await (const res of Deno.serveHttp(conn)) {
+          const req = res.request;
+          const url = req.url;
+          console.log(url);
+          let resd = null;
+          if (url.startsWith("/api/")) {
+            resd = await handleApi(req);
+          } else if (url.startsWith("/data/")) {
+            resd = await handleData(req);
+          } else {
+            resd = await handleWeb(req);
+          }
+          if (resd) {
+            res.respondWith(resd);
+          } else {
+            res.respondWith(new Response(err));
+          }
         }
-      });
-      console.log("removed", this.socks.length);
+      })();
     }
-  }
-
-  send(sockid, data) {
-    const sdata = JSON.stringify({ type: "message", from: sockid, data: data });
-    const sock = this.socks.find((s) => s.id === sockid);
-    if (!sock) {
-      return false;
-    }
-    try {
-      sock.send(sdata);
-      return true;
-    } catch (e) {
-      this.socks = this.socks.filter((s) => s !== sock);
-      console.log("removed", this.socks.length);
-      this.onclose(sock.id);
-    }
-    return false;
-  }
-
-  close(sockid) {
-    const sock = this.socks.find((s) => s.id === sockid);
-    if (!sock) {
-      return false;
-    }
-    try {
-      sock.close();
-    } catch (e) {
-    }
-    this.socks = this.socks.filter((s) => s !== sock);
-    console.log("removed", this.socks.length);
-    this.onclose(sock.id);
-    return true;
   }
 
   // Web API
   api(path, req) { // to override
     return req;
-  }
-
-  // WebSocket API
-  onmessage(sockid, req) { // to override
-    this.push(sockid, { type: "push", from: sockid, data: req });
-    return null; // reply to sender
-  }
-
-  onopen(sockid) { // to override
-    this.pushRaw({ type: "open", from: sockid });
-  }
-
-  onclose(sockid) { // to override
-    this.pushRaw({ type: "close", from: sockid });
   }
 }
 
