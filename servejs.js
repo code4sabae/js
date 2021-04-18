@@ -1,39 +1,39 @@
-import { createApp } from "https://servestjs.org/@v1.1.2/mod.ts";
 import { CONTENT_TYPE } from "./CONTENT_TYPE.js";
 
-class Server {
-  constructor(port) {
-    const app = createApp();
-
-    app.handle(/\/*/, async (req) => {
-      try {
-        const fn = req.path === "/" || req.path.indexOf("..") >= 0
-          ? "/index.html"
-          : req.path;
-        const n = fn.lastIndexOf(".");
-        const ext = n < 0 ? "html" : fn.substring(n + 1);
-        const data = Deno.readFileSync("." + fn);
-        const ctype = CONTENT_TYPE[ext] || "text/plain";
-        await req.respond({
-          status: 200,
-          headers: new Headers(
-            { "Content-Type": ctype, "Access-Control-Allow-Origin": "*" },
-          ),
-          body: data,
-        });
-      } catch (e) {
-        console.log("err", e.stack);
-      }
+const handleWeb = (req) => {
+  try {
+    const fn = req.url === "/" || req.url.indexOf("..") >= 0 ? "/index.html" : req.url;
+    console.log(fn);
+    const n = fn.lastIndexOf(".");
+    const ext = n < 0 ? "html" : fn.substring(n + 1);
+    const data = Deno.readFileSync("." + fn);
+    const ctype = CONTENT_TYPE[ext] || "text/plain";
+    return new Response(data, {
+      status: 200,
+      headers: new Headers(
+        { "Content-Type": ctype, "Access-Control-Allow-Origin": "*" },
+      )
     });
-
-    app.listen({ port });
-
-    console.log(`http://localhost:${port}/`);
+  } catch (e) {
+    console.log("err", e.stack);
+    return new Response("not found", {
+      status: 404,
+      headers: new Headers(
+        { "Content-Type": "text-plain", "Access-Control-Allow-Origin": "*" },
+      )
+    });
   }
+};
 
-  api(path, req) { // to override
-    return req;
-  }
+const port = 8081;
+const hostname = "::";
+console.log(`http://localhost:${port}/`);
+for await (const conn of Deno.listen({ port, hostname })) {
+  (async () => {
+    for await (const res of Deno.serveHttp(conn)) {
+      const req = res.request;
+      const resd = handleWeb(req);
+      res.respondWith(resd);
+    }
+  })();
 }
-
-new Server(8080);
