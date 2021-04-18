@@ -1,4 +1,3 @@
-import { rnd } from "./rnd.js";
 import { createFullCanvas } from "./createFullCanvas.js";
 import { extendGraphics } from "./extendGraphics.js";
 import { extendUI } from "./extendUI.js";
@@ -10,4 +9,4 @@ const createEgCanvas = () => {
     return c;
 }
 
-export { createEgCanvas, rnd };
+export { createEgCanvas };
