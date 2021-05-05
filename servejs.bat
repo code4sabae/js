@@ -1,1 +1,1 @@
-deno run -A servejs.js
+deno run -A --unstable servejs.js

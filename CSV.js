@@ -157,13 +157,20 @@ CSV.fromJSON = function (json) {
   }
   return res;
 };
+CSV.fetchOrLoad = async (fn) => {
+  if (fn.startsWith("https://") || fn.startsWith("http://") || !globalThis.Deno) {
+    return new Uint8Array(await (await fetch(fn)).arrayBuffer());
+  } else {
+    return await Deno.readFile(fn);
+  }
+}
 CSV.fetchUtf8 = async (url) => {
   const data = await (await fetch(url)).text();
   const csv = CSV.decode(data);
   return csv;
 };
 CSV.fetch = async (url) => {
-  const data = SJIS.decodeAuto(new Uint8Array(await (await fetch(url)).arrayBuffer()))
+  const data = SJIS.decodeAuto(await CSV.fetchOrLoad(url));
   const csv = CSV.decode(data);
   return csv;
 };

@@ -1,6 +1,7 @@
 import { CONTENT_TYPE } from "https://js.sabae.cc/CONTENT_TYPE.js";
 import { UUID } from "https://js.sabae.cc/UUID.js";
 import { getExtension } from "https://js.sabae.cc/getExtension.js";
+import { parseURL } from "./parseURL.js";
 
 class Server {
   constructor(port) {
@@ -9,7 +10,7 @@ class Server {
   async start(port) {
     const handleApi = async (req) => {
       const url = req.url;
-      const path = url.indexOf("?") < 0 ? url : url.substring(0, url.indexOf("?"));
+      const path = req.path;
       if (req.method === "OPTIONS") {
         const res = "ok";
         return new Response(JSON.stringify(res), {
@@ -64,7 +65,7 @@ class Server {
 
     const handleData = async (req) => {
       const url = req.url;
-      const path = url.indexOf("?") < 0 ? url : url.substring(0, url.indexOf("?"));
+      const path = req.path;
       try {
         if (req.method === "POST") {
           const ext = getExtension(path, ".jpg");
@@ -120,7 +121,7 @@ class Server {
 
     const handleWeb = async (req) => {
       const url = req.url;
-      const path = url.indexOf("?") < 0 ? url : url.substring(0, url.indexOf("?"));
+      const path = req.path;
       try {
         const getRange = (req) => {
           const range = req.headers.get("Range");
@@ -138,6 +139,7 @@ class Server {
         const n = fn.lastIndexOf(".");
         const ext = n < 0 ? "html" : fn.substring(n + 1);
         const readFileSync = (fn, range) => {
+          console.log(fn);
           const data = Deno.readFileSync(fn);
           if (!range) {
             return [data, data.length];
@@ -175,16 +177,25 @@ class Server {
 
     const hostname = "::";
     const err = new TextEncoder().encode("not found");
+
     for await (const conn of Deno.listen({ port, hostname })) {
       (async () => {
         for await (const res of Deno.serveHttp(conn)) {
           const req = res.request;
           const url = req.url;
-          console.log(url);
+          const purl = parseURL(url);
+          if (!purl) {
+            continue;
+          }
+          req.path = purl.path;
+          req.query = purl.query;
+          req.host = purl.host;
+          req.port = purl.port;
           let resd = null;
-          if (url.startsWith("/api/")) {
+          const path = req.path;
+          if (path.startsWith("/api/")) {
             resd = await handleApi(req);
-          } else if (url.startsWith("/data/")) {
+          } else if (path.startsWith("/data/")) {
             resd = await handleData(req);
           } else {
             resd = await handleWeb(req);
