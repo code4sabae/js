@@ -2,6 +2,9 @@ import { SJIS } from "https://code4sabae.github.io/js/SJIS.js";
 
 const CSV = {};
 
+CSV.parse = (s) => CSV.toJSON(CSV.decode(s));
+CSV.stringify = (json) => CSV.encode(CSV.fromJSON(json));
+
 CSV.addBOM = function (s) {
   return "\ufeff" + s;
 };
