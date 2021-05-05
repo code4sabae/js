@@ -1,8 +1,11 @@
 import { CONTENT_TYPE } from "./CONTENT_TYPE.js";
+import { parseURL } from "./parseURL.js";
 
 const handleWeb = (req) => {
   try {
-    const fn = req.url === "/" || req.url.indexOf("..") >= 0 ? "/index.html" : req.url;
+    const purl = parseURL(req.url);
+    const path = purl.path;
+    const fn = path === "/" || path.indexOf("..") >= 0 ? "/index.html" : path;
     console.log(fn);
     const n = fn.lastIndexOf(".");
     const ext = n < 0 ? "html" : fn.substring(n + 1);
@@ -29,9 +32,13 @@ const port = 8081;
 const hostname = "::";
 console.log(`http://localhost:${port}/`);
 for await (const conn of Deno.listen({ port, hostname })) {
+  //console.log("conn", conn.addr, conn.rid);
   (async () => {
     for await (const res of Deno.serveHttp(conn)) {
+      // https://github.com/oakserver/oak/blob/main/request.ts
       const req = res.request;
+      console.log("req.ip", req.ip); // ? undefined
+      //console.log(req.headers);
       const resd = handleWeb(req);
       res.respondWith(resd);
     }
