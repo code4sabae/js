@@ -1,7 +1,7 @@
 import { CONTENT_TYPE } from "https://js.sabae.cc/CONTENT_TYPE.js";
 import { UUID } from "https://js.sabae.cc/UUID.js";
 import { getExtension } from "https://js.sabae.cc/getExtension.js";
-import { parseURL } from "./parseURL.js";
+import { parseURL } from "https://js.sabae.cc/parseURL.js";
 
 class Server {
   constructor(port) {
@@ -39,7 +39,7 @@ class Server {
           return null;
         })();
         console.log("[req api]", json);
-        const res = await this.api(path, json);
+        const res = await this.api(path, json, req.remoteAddr);
         console.log("[res api]", res);
         return new Response(JSON.stringify(res), {
           status: 200,
@@ -180,6 +180,8 @@ class Server {
 
     for await (const conn of Deno.listen({ port, hostname })) {
       (async () => {
+        //console.log(conn.localAddr);
+        const remoteAddr = conn.remoteAddr.hostname;
         for await (const res of Deno.serveHttp(conn)) {
           const req = res.request;
           const url = req.url;
@@ -191,6 +193,7 @@ class Server {
           req.query = purl.query;
           req.host = purl.host;
           req.port = purl.port;
+          req.remoteAddr = remoteAddr;
           let resd = null;
           const path = req.path;
           if (path.startsWith("/api/")) {
@@ -211,7 +214,7 @@ class Server {
   }
 
   // Web API
-  api(path, req) { // to override
+  api(path, req, remoteAddr) { // to override
     return req;
   }
 }
