@@ -18,6 +18,12 @@ const parseURL = (url) => {
   const n4 = url.indexOf("?", n3);
   const path = n4 < 0 ? url.substring(n3) : url.substring(n3, n4);
   const query = n4 < 0 ? null : url.substring(n4 + 1);
+
+  if (protocol == "file://") {
+    const regexp = /(?<scheme>.+):\/\/(?<basename>.+)\/(?<filename>.+)/;
+    const dirname = url.match(regexp).groups.basename + "/";
+    return { protocol, port, host, path, query, dirname };
+  }
   return { protocol, port, host, path, query };
 };
 
