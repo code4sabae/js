@@ -1,7 +1,7 @@
 import { CSV } from "https://code4sabae.github.io/js/CSV.js";
 import IMIMojiConverter from "https://code4sabae.github.io/imi-moji-converter-es/IMIMojiConverter.mjs";
 
-const std = (s) => IMIMojiConverter.toHalfWidth(s);
+const std = (s) => IMIMojiConverter.toHalfWidth(s).toLowerCase();
 
 const EMBED_IMAGE = true;
 const EMBED_IMAGE_W = 100; // 300;
