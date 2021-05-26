@@ -8,7 +8,6 @@ const setDoctype = () => {
   } else {
     document.insertBefore(doctype, document.childNodes[0]);
   }
-  console.log(document.doctype);
 };
 setDoctype();
 
@@ -35,11 +34,21 @@ const json2css = (css) => {
     res.push(name + " {");
     const body = css[name];
     for (const st in body) {
-      res.push(`  ${st}: ${body[st]};`);
+      if (typeof body[st] == "object") {
+        res.push("  " + st + " {");
+        const body2 = body[st];
+        for (const st2 in body2) {
+          res.push(`    ${st2}: ${body2[st2]};`);
+        }
+        res.push("  }");
+      } else {
+        res.push(`  ${st}: ${body[st]};`);
+      }
     }
     res.push("}");
   }
   const s = res.join("\n");
+  //console.log(s);
   return s;
 };
 const style = (text) => {
