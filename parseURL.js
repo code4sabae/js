@@ -24,11 +24,12 @@ const parseURL = (url) => {
     const dirname = url.match(regexp).groups.basename + "/";
     return { protocol, port, host, path, query, dirname };
   }
-  return { protocol, port, host, path, query };
+  return { protocol, port, host, path: decodeURI(path), query };
 };
 
 //console.log(parseURL("https://fukuno.jig.jp/3000.html?q=test"));
 //console.log(parseURL("http://fukuno.jig.jp/3000"));
 //console.log(parseURL("http://fukuno.jig.jp:8881/3000"));
+//console.log(parseURL("http://fukuno.jig.jp/1_%E3%83%A2%E3%83%87%E3%83%AB%E5%A5%91%E7%B4%84%E6%9B%B8v1_0_%E7%A7%98%E5%AF%86%E4%BF%9D%E6%8C%81%E5%A5%91%E7%B4%84%E6%9B%B8%EF%BC%88%E6%96%B0%E7%B4%A0%E6%9D%90%E7%B7%A8%EF%BC%89_%E9%80%90%E6%9D%A1%E8%A7%A3%E8%AA%AC%E3%81%82%E3%82%8A.md"));
 
 export { parseURL };

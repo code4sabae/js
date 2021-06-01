@@ -181,7 +181,7 @@ const showTable = function (p, csv, sfilter, sortidx, sortorder) {
       const td = create("td");
       let val = dd[j];
       if (val.startsWith("http://") || val.startsWith("https://")) {
-        const s = "";
+        let s = "";
         val = val.replace(/</g, "&lt;");
         val = val.replace(/>/g, "&gt;");
         //				if (val.toLowerCase().endsWith(".jpg") || val.toLowerCase().endsWith(".png")) {
