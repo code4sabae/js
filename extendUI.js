@@ -1,6 +1,9 @@
 const extendUI = function(comp) { // onuidown, onuimove, onuiup
 	const istouch = 'ontouchstart' in window;
 	const usecapture = false;
+  if (!comp.ratio) {
+    comp.ratio = 1;
+  }
 	if (istouch) {
 		comp.addEventListener("touchstart", function(e) {
 			if (this.onuidown != null) {
@@ -49,4 +52,5 @@ const extendUI = function(comp) { // onuidown, onuimove, onuiup
 		}
 	}, usecapture);
 };
+
 export { extendUI };
