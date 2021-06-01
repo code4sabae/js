@@ -94,17 +94,17 @@ const showTable = function (p, csv, sfilter, sortidx, sortorder) {
     array.sort(function (a, b) {
       const an = a[sortidx];
       const bn = b[sortidx];
-      for (const am = 0;; am++) {
+      for (let am = 0;; am++) {
         if (arbk[am] == a) {
           break;
         }
       }
-      for (const bm = 0;; bm++) {
+      for (let bm = 0;; bm++) {
         if (arbk[bm] == b) {
           break;
         }
       }
-      const flg = 0;
+      let flg = 0;
       if (an == bn) {
         flg = sortorder ? am - bm : bm - am;
       } else {
