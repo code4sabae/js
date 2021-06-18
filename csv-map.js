@@ -6,9 +6,11 @@ class CSVMap extends HTMLElement {
   constructor () {
     super();
 
+    const grayscale = this.getAttribute("grayscale");
+
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://code4sabae.github.io/leaflet-mjs/leaflet.css";
+    link.href = "https://code4sabae.github.io/leaflet-mjs/" + (grayscale ? "leaflet-grayscale.css" : "leaflet.css");
     this.appendChild(link);
     link.onload = () => this.init();
   }
@@ -19,7 +21,8 @@ class CSVMap extends HTMLElement {
     div.style.height = this.getAttribute("height") || "60vh";
     const icon = this.getAttribute("icon");
     const iconsize = this.getAttribute("iconsize") || 30;
-
+    const filter = this.getAttribute("filter")?.split(",");
+    
     const map = L.map(div);
     // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
     L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
@@ -38,12 +41,15 @@ class CSVMap extends HTMLElement {
       const tbl = [];
       tbl.push("<table>");
       for (const name in d) {
-        const val = d[name];
+        let val = d[name];
+        if (val.startsWith("http://") || val.startsWith("https://")) {
+          val = "<a href=" + val + ">" + val + "</a>";
+        }
         if (val) {
           if (name == "sabaecc:geo3x3") {
-            tbl.push(`<tr><th>${name}</th><td><a href=https://code4sabae.github.io/geo3x3-map/#${d[name]}>${d[name]}</a></td></tr>`);
+            tbl.push(`<tr><th>${name}</th><td><a href=https://code4sabae.github.io/geo3x3-map/#${val}>${val}</a></td></tr>`);
           } else {
-            tbl.push(`<tr><th>${name}</th><td>${d[name]}</td></tr>`);
+            tbl.push(`<tr><th>${name}</th><td>${val}</td></tr>`);
           }
         }
       }
@@ -81,7 +87,20 @@ class CSVMap extends HTMLElement {
         });
       }
       const marker = L.marker(ll, opt);
-      const tbl = makeTable(d);
+
+      const d2 = (() => {
+        if (!filter) {
+          return d;
+        }
+        const res = {};
+        for (const n in d) {
+          if (filter.indexOf(n) >= 0) {
+            res[n] = d[n];
+          }
+        }
+        return res;
+      })();
+      const tbl = makeTable(d2);
       marker.bindPopup((title ? `<a href=${url}>${title}</a>` : "") + tbl);
       iconlayer.addLayer(marker);
       lls.push(ll);
