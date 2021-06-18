@@ -62,6 +62,11 @@ Table.makeTable = (ar) => {
         const a = c("a");
         a.href = a.textContent = s;
         td.appendChild(a);
+      } else if (s.startsWith("tel:")) {
+        const a = c("a");
+        a.href = s;
+        a.textContent = s.substring(4);
+        td.appendChild(a);
       } else {
         td.textContent = s;
       }
