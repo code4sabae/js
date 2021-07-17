@@ -1,6 +1,6 @@
 import * as t from "https://deno.land/std/testing/asserts.ts";
 import { Table } from "../Table.js";
-import {} from "./domtest.js";
+import {} from "https://code4fukui.github.io/domtest/domtest.js";
 
 Deno.test("simple", () => {
   const data = [

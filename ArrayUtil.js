@@ -32,9 +32,19 @@ const isUnique = (array) => {
   }
   return true;
 };
+const toUnique = (ar) => {
+  const set = new Set();
+  for (const a of ar) {
+    set.add(a);
+  }
+  const res = [];
+  set.forEach(s => res.push(s));
+  return res;
+};
 const ArrayUtil = {
   min,
   max,
   isUnique,
+  toUnique,
 };
 export { ArrayUtil }

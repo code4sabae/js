@@ -16,4 +16,8 @@ const fetchTextCurl = async (url) => {
   return new TextDecoder().decode(bin);
 };
 
-export { fetchCurl, fetchTextCurl };
+const fetchJSONCurl = async (url) => {
+  return JSON.parse(await fetchTextCurl(url));
+};
+
+export { fetchCurl, fetchTextCurl, fetchJSONCurl };
