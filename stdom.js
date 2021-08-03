@@ -1,6 +1,12 @@
 import { Table } from "https://js.sabae.cc/Table.js";
 
-const create = (tag) => document.createElement(tag);
+const create = (tag, parent) => {
+  const c = document.createElement(tag);
+  if (parent) {
+    parent.appendChild(c);
+  }
+  return c;
+};
 
 const setDefaultStyle = () => {
 	style({
