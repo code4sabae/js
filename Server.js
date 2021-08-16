@@ -10,6 +10,72 @@ const getFileNameFromDate = () => {
   return ymd + "/" + UUID.generate();
 };
 
+const DENO_BUF_SIZE = 32 * 1024;
+
+const readFilePartial = async (fn, offset, len) => {
+  const f = await Deno.open(fn);
+  //console.log(fn, offset, len);
+  await Deno.seek(f.rid, offset, Deno.SeekMode.Start);
+  const buf = new Uint8Array(len);
+  const rbuf = new Uint8Array(DENO_BUF_SIZE);
+  let off = 0;
+  for (;;) {
+    const rlen = await Deno.read(f.rid, rbuf);
+    for (let i = 0; i < rlen; i++) {
+      buf[off + i] = rbuf[i];
+    }
+    //console.log(off, rlen);
+    off += rlen;
+    len -= rlen;
+    if (len == 0) {
+      break;
+    }
+  }
+  await Deno.close(f.rid);
+  return buf;
+};
+
+const RANGE_LEN = 1024 * 1024 * 10;
+
+const readFileRange = async (fn, range) => {
+  let gzip = true;
+  let data = null;
+  let range0 = 0;
+  let range1 = RANGE_LEN - 1;
+  if (range) {
+    range0 = parseInt(range[0]);
+    if (range[1] != "") {
+      range1 = parseInt(range[1]);
+    } else {
+      range1 += range0;
+    }
+  }
+  let flen = 0;
+  try {
+    /* // unsupported gzip & range request
+    //data = Deno.readFileSync(fn + ".gz");
+    flen = (await Deno.stat(fn + ".gz")).size;
+    if (range1 >= flen) {
+      range1 = flen - 1;
+    }
+    data = await readFilePartial(fn + ".gz", range0, range1 - range0 + 1);
+    */
+    flen = (await Deno.stat(fn + ".gz")).size;
+    if (flen < RANGE_LEN) {
+      data = await Deno.readFile(fn + ".gz");
+      return [data, data.length, gzip];
+    }
+  } catch (e) {
+  }
+  gzip = false;
+  flen = (await Deno.stat(fn)).size;
+  if (range1 >= flen) {
+    range1 = flen - 1;
+  }
+  data = await readFilePartial(fn, range0, range1 - range0 + 1);
+  return [data, flen, gzip];
+};
+
 class Server {
   constructor(port) {
     this.start(port);
@@ -118,6 +184,7 @@ class Server {
     //const url = req.url;
     const path = req.path;
     try {
+      //console.log(path, req.headers);
       const getRange = (req) => {
         const range = req.headers.get("Range");
         if (!range || !range.startsWith("bytes=")) {
@@ -129,31 +196,31 @@ class Server {
         }
         return res;
       };
-      const range = getRange(req);
+      let range = getRange(req);
       const fn = path === "/" || path.indexOf("..") >= 0 ? "/index.html" : path;
       const n = fn.lastIndexOf(".");
       const ext = n < 0 ? "html" : fn.substring(n + 1);
-      const readFileSync = (fn, range) => {
-        console.log(fn);
-        const data = Deno.readFileSync(fn);
-        if (!range) {
-          return [data, data.length];
+      const [data, totallen, gzip] = await readFileRange("static" + fn, range);
+      if (!range) {
+        if (data.length != totallen) {
+          range = [0, data.length - 1];
         }
-        const offset = parseInt(range[0]);
-        const len = range[1] ? parseInt(range[1]) - offset + 1 : data.length - offset;
-        const res = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          res[i] = data[offset + i];
-        }
-        return [res, data.length];
-      };
-      const [data, totallen] = readFileSync("static" + fn, range);
+      } else if (range[1] == "") {
+        range[1] = parseInt(range[0]) + data.length - 1;
+      }
+
       const ctype = CONTENT_TYPE[ext] || "text/plain";
       const headers = {
         "Content-Type": ctype,
         "Accept-Ranges": "bytes",
         "Content-Length": data.length,
       };
+      if (gzip) {
+        headers["Content-Encoding"] = "gzip";
+      }
+      if (totallen == data.length) {
+        range = null;
+      }
       if (range) {
         headers["Content-Range"] = "bytes " + range[0] + "-" + range[1] +
           "/" + totallen;
@@ -170,37 +237,41 @@ class Server {
   }
   async start(port) {
     console.log(`http://localhost:${port}/`);
-    const hostname = "::";
+    const hostname = "::"; // for IPv6
     for await (const conn of Deno.listen({ port, hostname })) {
       (async () => {
         //console.log(conn.localAddr);
         const remoteAddr = conn.remoteAddr.hostname;
-        for await (const res of Deno.serveHttp(conn)) {
-          const req = res.request;
-          const url = req.url;
-          const purl = parseURL(url);
-          if (!purl) {
-            continue;
+        try {
+          for await (const res of Deno.serveHttp(conn)) {
+            const req = res.request;
+            const url = req.url;
+            const purl = parseURL(url);
+            if (!purl) {
+              continue;
+            }
+            req.path = purl.path;
+            req.query = purl.query;
+            req.host = purl.host;
+            req.port = purl.port;
+            req.remoteAddr = remoteAddr;
+            let resd = null;
+            const path = req.path;
+            if (path.startsWith("/api/")) {
+              resd = await this.handleApi(req);
+            } else if (path.startsWith("/data/")) {
+              resd = await this.handleData(req);
+            } else {
+              resd = await this.handleWeb(req);
+            }
+            if (resd) {
+              res.respondWith(resd);
+            } else {
+              res.respondWith(await this.handleNotFound(req));
+            }
           }
-          req.path = purl.path;
-          req.query = purl.query;
-          req.host = purl.host;
-          req.port = purl.port;
-          req.remoteAddr = remoteAddr;
-          let resd = null;
-          const path = req.path;
-          if (path.startsWith("/api/")) {
-            resd = await this.handleApi(req);
-          } else if (path.startsWith("/data/")) {
-            resd = await this.handleData(req);
-          } else {
-            resd = await this.handleWeb(req);
-          }
-          if (resd) {
-            res.respondWith(resd);
-          } else {
-            res.respondWith(await this.handleNotFound(req));
-          }
+        } catch (e) {
+          //console.log(e);
         }
       })();
     }

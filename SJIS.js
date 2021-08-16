@@ -44,7 +44,7 @@ SJIS.decode = (sjis, len) => {
 	}
 	return ss.join("");
 };
-SJIS.isSJIS = (sjis) => {
+SJIS.isSJIS = (sjis) => { // 短い時に誤判定がある
 	const cerr = String.fromCharCode(65533);
 	const s = SJIS.decode(sjis, 10000);
 	return s.indexOf(cerr) === -1;
