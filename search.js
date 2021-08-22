@@ -1,11 +1,18 @@
 const search = (data, key) => {
-  const keys = key.split(" "); // AND条件
+  const keys = key.split(" ");
   const res = [];
   A: for (const d of data) {
     for (const k of keys) {
       let flg = false;
-      for (const name in d) {
-        if (d[name].indexOf(k) >= 0) {
+      if (typeof d == "object") {
+        for (const name in d) {
+          if (d[name].indexOf(k) >= 0) {
+            flg = true;
+            break;
+          }
+        }
+      } else {
+        if (d.toString().indexOf(k) >= 0) {
           flg = true;
           break;
         }
@@ -18,4 +25,5 @@ const search = (data, key) => {
   }
   return res;
 };
+
 export { search };

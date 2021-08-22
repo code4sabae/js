@@ -7,7 +7,7 @@ const jsonfs = {
     return null;
   },
   write(fn, json) {
-    Deno.writeTextFileSync(fn, JSON.stringify(json));
+    Deno.writeTextFileSync(fn, JSON.stringify(json, null, 2));
   }
 };
 
