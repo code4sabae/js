@@ -41,10 +41,35 @@ const toUnique = (ar) => {
   set.forEach(s => res.push(s));
   return res;
 };
+const melt = (array, keep, name = "varname", valname = "value") => {
+  const res = [];
+  array.forEach((d) => {
+    const base = {};
+    const vars = [];
+    const vals = [];
+    for (const k in d) {
+      if (keep.indexOf(k) >= 0) {
+        base[k] = d[k];
+      } else {
+        vars.push(k);
+        vals.push(d[k]);
+      }
+    }
+    for (let i = 0; i < vars.length; i++) {
+      const row = {};
+      Object.assign(row, base);
+      row[name] = vars[i];
+      row[valname] = vals[i];
+      res.push(row);
+    }
+  });
+  return res;
+};
 const ArrayUtil = {
   min,
   max,
   isUnique,
   toUnique,
+  melt,
 };
 export { ArrayUtil }
