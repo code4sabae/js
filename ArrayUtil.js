@@ -41,7 +41,9 @@ const toUnique = (ar) => {
   set.forEach(s => res.push(s));
   return res;
 };
-const melt = (array, keep, name = "varname", valname = "value") => {
+const melt = (array, keep, name, valname) => {
+  name = name || "varname";
+  valname = valname || "value";
   const res = [];
   array.forEach((d) => {
     const base = {};
@@ -65,11 +67,19 @@ const melt = (array, keep, name = "varname", valname = "value") => {
   });
   return res;
 };
+const removeByKeys = (array, keys) => {
+  array.forEach(d => {
+    for (const r of keys) {
+        delete d[r];
+    }
+  });
+};
 const ArrayUtil = {
   min,
   max,
   isUnique,
   toUnique,
   melt,
+  removeByKeys,
 };
 export { ArrayUtil }
