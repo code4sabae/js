@@ -103,7 +103,7 @@ CSV.encode = function (csvar) {
     }
     s.push(s2.join(","));
   }
-  return CSV.addBOM(s.join("\n"));
+  return CSV.addBOM(s.join("\n") + "\n");
 };
 CSV.toJSON = function (csv, removeblacket) {
   const res = [];
