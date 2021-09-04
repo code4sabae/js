@@ -50,21 +50,41 @@ Deno.test("fromMarkdown", () => {
 Deno.test("toMarkdown enc", () => {
   const data = [
     { a: 123, b: "- abc" },
-    { a: 456, b: "# def\n" },
+    { a: 456, b: "# def\nDEF\n" },
   ];
   const s = CSV.toMarkdown(data);
-  const expect = "# a\n\n## 123\n\n- b: - abc\n\n## 456\n\n### b\n\n\\# def\n\n";
+  const expect = "# a\n\n## 123\n\n- b: - abc\n\n## 456\n\n### b\n\n\\# def\n\nDEF\n\n\n";
   t.assertEquals(s, expect);
 });
 Deno.test("fromMarkdown", () => {
-  const s = "# a\n\n## 123\n\n- b: - abc\n\n## 456\n\n### b\n\n\\# def\n\n";
+  const s = "# a\n\n## 123\n\n- b: - abc\n\n## 456\n\n### b\n\n\\# def\n\nDEF\n\n\n";
   const data = CSV.fromMarkdown(s);
   const expect = [
     { a: "123", b: "- abc" },
-    { a: "456", b: "# def\n" },
+    { a: "456", b: "# def\nDEF\n" },
   ];
   t.assertEquals(data, expect);
 });
+Deno.test("fromMarkdown2", () => {
+  const s = "# a\n\n## 123\n\n- b: - abc\n\n## 456\n\n### b\n\n\\# def\n\nDEF\n\n";
+  const data = CSV.fromMarkdown(s);
+  const expect = [
+    { a: "123", b: "- abc" },
+    { a: "456", b: "# def\nDEF" },
+  ];
+  t.assertEquals(data, expect);
+});
+/*
+Deno.test("toMarkdown", () => {
+  const data = [
+    { a: 123, b: "abc", c: true },
+    { a: 456, b: "def", c: false },
+  ];
+  const s = CSV.toMarkdown(data);
+  const expect = "# a\n\n## 123\n\n- b: abc\n- c: true\n\n## 456\n\n- b: def\n- c: false\n";
+  t.assertEquals(s, expect);
+});
+*/
 /*
 const s = "# a\n\n## 123\n\n- b: abc\n\n## 456\n\n- b: def\n";
 const data = CSV.fromMarkdown(s);

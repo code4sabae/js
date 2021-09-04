@@ -179,12 +179,16 @@ CSV.toMarkdown = function (csvorjson) {
           for (const s of ss) {
             if (s.length > 0 && "\\-#".indexOf(s[0]) >= 0) {
               res.push("\\" + s);
+              res.push("");
             } else {
               res.push(s);
+              res.push("");
             }
           }
-          res.push("");
         } else {
+          if (res[res.length - 1] == "" && res[res.length - 2][0] == "-") {
+            res.pop();
+          }
           res.push("- " + head[j] + ": " + d[j]);
           res.push("");
         }
@@ -232,6 +236,12 @@ CSV.fromMarkdown = function (s) {
             val.push(s1.substring(1));
           } else {
             val.push(s1);
+          }
+          if (n < ss.length && ss[n] == "") {
+            n++;
+            if (n == ss.length) {
+              break;
+            }
           }
         }
         d[name] = val.join("\n");
