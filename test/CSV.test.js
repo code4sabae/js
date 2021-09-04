@@ -28,6 +28,16 @@ Deno.test("toMarkdown", () => {
   const expect = "# a\n\n## 123\n\n- b: abc\n\n## 456\n\n- b: def\n";
   t.assertEquals(s, expect);
 });
+Deno.test("toMarkdown csv", () => {
+  const data = [
+    ["a", "b"],
+    [123, "abc"],
+    [456, "def"],
+  ];
+  const s = CSV.toMarkdown(data);
+  const expect = "# a\n\n## 123\n\n- b: abc\n\n## 456\n\n- b: def\n";
+  t.assertEquals(s, expect);
+});
 Deno.test("fromMarkdown", () => {
   const s = "# a\n\n## 123\n\n- b: abc\n\n## 456\n\n- b: def\n";
   const data = CSV.fromMarkdown(s);

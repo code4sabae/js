@@ -161,7 +161,7 @@ CSV.fromJSON = function (json) {
   return res;
 };
 CSV.toMarkdown = function (csvorjson) {
-  const csv = Array.isArray(csvorjson[0]) ? csvjson : CSV.fromJSON(csvorjson);
+  const csv = Array.isArray(csvorjson[0]) ? csvorjson : CSV.fromJSON(csvorjson);
   const res = [];
   const head = csv[0];
   res.push("# " + head[0]);
