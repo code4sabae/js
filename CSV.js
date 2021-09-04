@@ -160,6 +160,92 @@ CSV.fromJSON = function (json) {
   }
   return res;
 };
+CSV.toMarkdown = function (csvorjson) {
+  const csv = Array.isArray(csvorjson[0]) ? csvjson : CSV.fromJSON(csvorjson);
+  const res = [];
+  const head = csv[0];
+  res.push("# " + head[0]);
+  res.push("");
+  for (let i = 1; i < csv.length; i++) {
+    const d = csv[i];
+    res.push("## " + d[0]);
+    res.push("");
+    for (let j = 1; j < head.length; j++) {
+      if (d[j] != null) {
+        if (typeof d[j] == "string" && d[j].indexOf("\n") >= 0) {
+          res.push("### " + head[j]);
+          res.push("");
+          const ss = d[j].split("\n");
+          for (const s of ss) {
+            if (s.length > 0 && "\\-#".indexOf(s[0]) >= 0) {
+              res.push("\\" + s);
+            } else {
+              res.push(s);
+            }
+          }
+          res.push("");
+        } else {
+          res.push("- " + head[j] + ": " + d[j]);
+          res.push("");
+        }
+      }
+    }
+  }
+  return res.join("\n");
+};
+CSV.fromMarkdown = function (s) {
+  const ss = s.split("\n");
+  if (!ss[0].startsWith("# ")) {
+    throw new Error("not supported format");
+  }
+  const idname = ss[0].substring(2);
+  const res = [];
+  let n = 1;
+  while (n < ss.length) {
+    if (!ss[n].startsWith("## ")) {
+      n++;
+      continue;
+    }
+    const id = ss[n++].substring(3);
+    const d = {};
+    d[idname] = id;
+    while (n < ss.length) {
+      if (ss[n].startsWith("- ")) {
+        const ssn = ss[n++];
+        const m = ssn.indexOf(": ");
+        if (m < 0) {
+          throw new Error("not supported format");
+        }
+        const name = ssn.substring(2, m);
+        const val = ssn.substring(m + 2);
+        d[name] = val;
+      } else if (ss[n].startsWith("### ")) {
+        const name = ss[n].substring(4);
+        n += 2;
+        const val = [];
+        for (;;) {
+          const s1 = ss[n++];
+          if (s1[0] == "-" || s1[0] == "#" || n == ss.length) {
+            break;
+          }
+          if (s1[0] == "\\") {
+            val.push(s1.substring(1));
+          } else {
+            val.push(s1);
+          }
+        }
+        d[name] = val.join("\n");
+        n--;
+      } else if (ss[n].startsWith("## ")) {
+        break;
+      } else {
+        n++;
+      }
+    }
+    res.push(d);
+  }
+  return res;
+};
 CSV.fetchOrLoad = async (fn) => {
   if (fn.startsWith("https://") || fn.startsWith("http://") || !globalThis.Deno) {
     return new Uint8Array(await (await fetch(fn)).arrayBuffer());
