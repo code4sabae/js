@@ -261,6 +261,9 @@ class Server {
               resd = await this.handleApi(req);
             } else if (path.startsWith("/data/")) {
               resd = await this.handleData(req);
+              if (resd == null) {
+                resd = await this.handleWeb(req);
+              }
             } else {
               resd = await this.handleWeb(req);
             }
