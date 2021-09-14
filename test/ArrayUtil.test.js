@@ -41,3 +41,32 @@ Deno.test("removeByKeys", () => {
   ArrayUtil.removeByKeys(data, ["key1"]);
   t.assertEquals(data, expect1);
 });
+Deno.test("groupBy", () => {
+  const data = [
+    { key1: 1, key2: 2, key3: 10 },
+    { key1: 2, key2: 2, key3: 10 },
+    { key1: 3, key2: 3, key3: 20 },
+    { key1: 4, key2: 3, key3: 20 },
+    { key1: 5, key2: 2, key3: 20 },
+    { key1: 6, key2: 5, key3: 50 },
+    { key1: 7, key3: 50 },
+  ];
+  const expect1 = {
+    "2": [
+      { key1: 1, key2: 2, key3: 10 },
+      { key1: 2, key2: 2, key3: 10 },
+      { key1: 5, key2: 2, key3: 20 },
+    ],
+    "3": [
+      { key1: 3, key2: 3, key3: 20 },
+      { key1: 4, key2: 3, key3: 20 },
+      ],
+    "5": [
+      { key1: 6, key2: 5, key3: 50 },
+    ],
+    undefined: [
+      { key1: 7, key3: 50 },
+    ]
+  };
+  t.assertEquals(ArrayUtil.groupBy(data, "key2"), expect1);
+});

@@ -74,6 +74,18 @@ const removeByKeys = (array, keys) => {
     }
   });
 };
+const groupBy = (array, key) => {
+  const map = {};
+  for (const a of array)  {
+    const v = a[key];
+    if (map[v]) {
+      map[v].push(a);
+    } else {
+      map[v] = [a];
+    }
+  }
+  return map;
+}
 const ArrayUtil = {
   min,
   max,
@@ -81,5 +93,6 @@ const ArrayUtil = {
   toUnique,
   melt,
   removeByKeys,
+  groupBy,
 };
 export { ArrayUtil }
