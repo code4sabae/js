@@ -41,6 +41,13 @@ const toUnique = (ar) => {
   set.forEach(s => res.push(s));
   return res;
 };
+const toUniqueByString = (ar) => {
+  const map = {};
+  for (const a of ar) {
+    map[JSON.stringify(a)] = a;
+  }
+  return Object.values(map);
+};
 const melt = (array, keep, name, valname) => {
   name = name || "varname";
   valname = valname || "value";
@@ -86,13 +93,27 @@ const groupBy = (array, key) => {
   }
   return map;
 }
+const getUnion = (ars) => {
+  const unions = ars[0].filter((a) => {
+    for (let i = 1; i < ars.length; i++) {
+      if (!ars[i].includes(a)) {
+        return false;
+      }
+    }
+    return true;
+  });
+  return unions;
+};
+
 const ArrayUtil = {
   min,
   max,
   isUnique,
   toUnique,
+  toUniqueByString,
   melt,
   removeByKeys,
   groupBy,
+  getUnion,
 };
 export { ArrayUtil }

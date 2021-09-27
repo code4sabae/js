@@ -70,3 +70,41 @@ Deno.test("groupBy", () => {
   };
   t.assertEquals(ArrayUtil.groupBy(data, "key2"), expect1);
 });
+Deno.test("toUniqueString", () => {
+  const data = [
+    { key1: 1, key2: 2, key3: 10 },
+    { key1: 2, key2: 2, key3: 10 },
+    { key1: 3, key2: 3, key3: 20 },
+    { key1: 2, key2: 2, key3: 10 },
+    { key1: 3, key2: 3, key3: 20 },
+  ];
+  const expect1 = [
+    { key1: 1, key2: 2, key3: 10 },
+    { key1: 2, key2: 2, key3: 10 },
+    { key1: 3, key2: 3, key3: 20 },
+  ];
+  t.assertEquals(ArrayUtil.toUnique(data), data);
+  t.assertEquals(ArrayUtil.toUniqueByString(data), expect1);
+});
+Deno.test("getUnion", () => {
+  const res1 = ArrayUtil.getUnion([
+    [1, 2, 3],
+    [2, 3, 4],
+    [3, 2, 5],
+  ]);
+  t.assertEquals(res1, [2, 3]);
+
+  const res2 = ArrayUtil.getUnion([
+    [1, 2, 3],
+    [2, 3, 4],
+    [4, 5, 2],
+  ]);
+  t.assertEquals(res2, [2]);
+
+  const res3 = ArrayUtil.getUnion([
+    [1, 2, 3],
+    [2, 3, 4],
+    [4, 5, 6],
+  ]);
+  t.assertEquals(res3, []);
+});
