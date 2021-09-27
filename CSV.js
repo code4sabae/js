@@ -290,7 +290,7 @@ CSV.makeTable = (csv) => {
       const td = c("td");
       tr.appendChild(td);
       const s = csv[i][j];
-      if (s.startsWith("http://") || s.startsWith("https://")) {
+      if (typeof s == "string" && (s.startsWith("http://") || s.startsWith("https://"))) {
         const a = c("a");
         a.href = a.textContent = s;
         td.appendChild(a);
