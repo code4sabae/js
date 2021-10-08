@@ -104,6 +104,17 @@ const getUnion = (ars) => {
   });
   return unions;
 };
+const countBy = (ar) => {
+  const cnt = {};
+  for (const a of ar) {
+    if (!cnt[a]) {
+      cnt[a] = 1;
+    } else {
+      cnt[a]++;
+    }
+  }
+  return cnt;
+};
 
 const ArrayUtil = {
   min,
@@ -115,5 +126,6 @@ const ArrayUtil = {
   removeByKeys,
   groupBy,
   getUnion,
+  countBy,
 };
 export { ArrayUtil }

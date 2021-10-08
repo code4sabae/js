@@ -108,3 +108,9 @@ Deno.test("getUnion", () => {
   ]);
   t.assertEquals(res3, []);
 });
+Deno.test("countBy", (ar) => {
+  const test = [
+    "abc", "abc", "def", "def", "abc", "xyz",
+  ];
+  t.assertEquals(ArrayUtil.countBy(test), { abc: 3, def: 2, xyz: 1 });
+});
