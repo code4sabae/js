@@ -197,7 +197,16 @@ class Server {
         return res;
       };
       let range = getRange(req);
-      const fn = path === "/" || path.indexOf("..") >= 0 ? "/index.html" : path;
+      const calcPath = (path) => {
+        if (path === "/" || path.indexOf("..") >= 0) {
+          return "/index.html";
+        }
+        if (path.endsWith("/")) {
+          return path + "index.html";
+        }
+        return path;
+      };
+      const fn = calcPath(path);
       const n = fn.lastIndexOf(".");
       const ext = n < 0 ? "html" : fn.substring(n + 1);
       const [data, totallen, gzip] = await readFileRange("static" + fn, range);
