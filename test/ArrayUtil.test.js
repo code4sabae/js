@@ -123,12 +123,12 @@ Deno.test("toUnique", () => {
   ];
   t.assertEquals(ArrayUtil.toUnique(data), expect1);
 });
-Deno.test("toDuplicates", () => {
+Deno.test("toDuplicated", () => {
   const data = [
     1, 2, 3, 1, 2, 3, 4
   ];
   const expect1 = [
     1, 2, 3
   ];
-  t.assertEquals(ArrayUtil.toDuplicates(data), expect1);
+  t.assertEquals(ArrayUtil.toDuplicated(data), expect1);
 });
