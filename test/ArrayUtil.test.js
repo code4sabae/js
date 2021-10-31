@@ -108,9 +108,27 @@ Deno.test("getUnion", () => {
   ]);
   t.assertEquals(res3, []);
 });
-Deno.test("countBy", (ar) => {
+Deno.test("countBy", () => {
   const test = [
     "abc", "abc", "def", "def", "abc", "xyz",
   ];
   t.assertEquals(ArrayUtil.countBy(test), { abc: 3, def: 2, xyz: 1 });
+});
+Deno.test("toUnique", () => {
+  const data = [
+    1, 2, 3, 1, 2, 3, 4
+  ];
+  const expect1 = [
+    1, 2, 3, 4
+  ];
+  t.assertEquals(ArrayUtil.toUnique(data), expect1);
+});
+Deno.test("toDuplicates", () => {
+  const data = [
+    1, 2, 3, 1, 2, 3, 4
+  ];
+  const expect1 = [
+    1, 2, 3
+  ];
+  t.assertEquals(ArrayUtil.toDuplicates(data), expect1);
 });

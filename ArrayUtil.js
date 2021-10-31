@@ -41,6 +41,20 @@ const toUnique = (ar) => {
   set.forEach(s => res.push(s));
   return res;
 };
+const toDuplicates = (ar) => {
+  const set = new Set();
+  const resset = new Set();
+  for (const a of ar) {
+    if (set.has(a)) {
+      resset.add(a);
+    } else {
+      set.add(a);
+    }
+  }
+  const res = [];
+  resset.forEach(s => res.push(s));
+  return res;
+};
 const toUniqueByString = (ar) => {
   const map = {};
   for (const a of ar) {
@@ -121,6 +135,7 @@ const ArrayUtil = {
   max,
   isUnique,
   toUnique,
+  toDuplicates,
   toUniqueByString,
   melt,
   removeByKeys,
