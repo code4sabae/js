@@ -110,9 +110,9 @@ class Server {
         }
         return null;
       })();
-      console.log("[req api]", json);
+      this.log("[req api]", json);
       const res = await this.api(path, json, req.remoteAddr);
-      console.log("[res api]", res);
+      this.log("[res api]", res);
       return new Response(JSON.stringify(res), {
         status: 200,
         headers: new Headers({
@@ -123,7 +123,7 @@ class Server {
         })
       });
     } catch (e) {
-      console.log("err", e.stack);
+      this.err(e.stack);
     }
     return null;
   };
@@ -134,7 +134,7 @@ class Server {
       if (req.method === "POST") {
         const ext = getExtension(path, ".jpg");
         const bin = new Uint8Array(await req.arrayBuffer());
-        console.log("[req data]", bin.length);
+        this.log("[req data]", bin.length);
         const fn = getFileNameFromDate();
         const name = fn + ext;
         try {
@@ -148,7 +148,7 @@ class Server {
         }
         Deno.writeFileSync("data/" + name, bin);
         const res = { name };
-        console.log("[data res]", res);
+        this.log("[data res]", res);
         return new Response(JSON.stringify(res), {
           status: 200,
           headers: new Headers({
@@ -177,7 +177,7 @@ class Server {
         });
       }
     } catch (e) {
-      console.log("err", e.stack);
+      this.err("err", e.stack);
     }
   }
   async handleWeb(req) {
@@ -240,12 +240,12 @@ class Server {
       });
     } catch (e) {
       if (path !== "/favicon.ico") {
-        console.log("err", path, e.stack);
+        this.err(e);
       }
     }
   }
   async start(port) {
-    console.log(`http://localhost:${port}/`);
+    this.log(`http://localhost:${port}/`);
     const hostname = "::"; // for IPv6
     for await (const conn of Deno.listen({ port, hostname })) {
       (async () => {
@@ -283,7 +283,7 @@ class Server {
             }
           }
         } catch (e) {
-          //console.log(e);
+          err(e);
         }
       })();
     }
@@ -298,6 +298,27 @@ class Server {
   async api(path, req, remoteAddr) { // to override
     return req;
   }
+
+  // for debug
+  debug() {
+    return false;
+  }
+  err(e) {
+    if (this.debug()) {
+      console.log(e);
+    }
+  }
+  log(s) {
+    if (this.debug()) {
+      console.log(s);
+    }
+  }
 }
 
 export { Server };
+
+if (import.meta.url.endsWith("/Server.js")) {
+  const port = parseInt(Deno.args[0]);
+  new Server(port);
+  console.log(`http://localhost:${port}/`);
+}
