@@ -5,7 +5,7 @@ import { parseURL } from "https://js.sabae.cc/parseURL.js";
 
 const getFileNameFromDate = () => {
   const d = new Date();
-  const fix0 = (n) => n < 10 ? "0" + n : n;
+  const fix0 = (n) => (n < 10 ? "0" + n : n).toString();
   const ymd = d.getFullYear() + fix0(d.getMonth() + 1) + fix0(d.getDate());
   return ymd + "/" + UUID.generate();
 };
