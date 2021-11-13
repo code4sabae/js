@@ -1,3 +1,5 @@
+import { create } from "./stdcomp.js";
+
 // from stdom.js
 
 const json2css = (css) => {
