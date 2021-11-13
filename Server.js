@@ -317,8 +317,10 @@ class Server {
 
 export { Server };
 
+/*
 if (import.meta.url.endsWith("/Server.js")) {
   const port = parseInt(Deno.args[0]);
   new Server(port);
   console.log(`http://localhost:${port}/`);
 }
+*/
