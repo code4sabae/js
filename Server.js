@@ -2,10 +2,11 @@ import { CONTENT_TYPE } from "https://js.sabae.cc/CONTENT_TYPE.js";
 import { UUID } from "https://js.sabae.cc/UUID.js";
 import { getExtension } from "https://js.sabae.cc/getExtension.js";
 import { parseURL } from "https://js.sabae.cc/parseURL.js";
+import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
 const getFileNameFromDate = () => {
   const d = new Date();
-  const fix0 = (n) => (n < 10 ? "0" + n : n).toString();
+  const fix0 = (n) => n < 10 ? "0" + n : n;
   const ymd = d.getFullYear() + fix0(d.getMonth() + 1) + fix0(d.getDate());
   return ymd + "/" + UUID.generate();
 };
@@ -99,6 +100,8 @@ class Server {
       const json = await (async () => {
         if (req.method === "POST") {
           return await req.json();
+        } else if (req.method == "DELETE") {
+          return null; // no requets
         } else if (req.method === "GET") {
           const n = req.url.indexOf("?");
           const sjson = decodeURIComponent(req.url.substring(n + 1));
@@ -110,9 +113,9 @@ class Server {
         }
         return null;
       })();
-      this.log("[req api]", json);
-      const res = await this.api(path, json, req.remoteAddr);
-      this.log("[res api]", res);
+      console.log("[req api]", json);
+      const res = await this.api(path, json, req.remoteAddr, req);
+      console.log("[res api]", res);
       return new Response(JSON.stringify(res), {
         status: 200,
         headers: new Headers({
@@ -123,7 +126,7 @@ class Server {
         })
       });
     } catch (e) {
-      this.err(e.stack);
+      this.err(e);
     }
     return null;
   };
@@ -134,7 +137,7 @@ class Server {
       if (req.method === "POST") {
         const ext = getExtension(path, ".jpg");
         const bin = new Uint8Array(await req.arrayBuffer());
-        this.log("[req data]", bin.length);
+        console.log("[req data]", bin.length);
         const fn = getFileNameFromDate();
         const name = fn + ext;
         try {
@@ -148,7 +151,7 @@ class Server {
         }
         Deno.writeFileSync("data/" + name, bin);
         const res = { name };
-        this.log("[data res]", res);
+        console.log("[data res]", res);
         return new Response(JSON.stringify(res), {
           status: 200,
           headers: new Headers({
@@ -177,7 +180,7 @@ class Server {
         });
       }
     } catch (e) {
-      this.err("err", e.stack);
+      //console.log("err", e.stack);
     }
   }
   async handleWeb(req) {
@@ -240,53 +243,53 @@ class Server {
       });
     } catch (e) {
       if (path !== "/favicon.ico") {
-        this.err(e);
+        //console.log("err", path, e.stack);
       }
     }
   }
   async start(port) {
-    this.log(`http://localhost:${port}/`);
-    const hostname = "::"; // for IPv6
-    for await (const conn of Deno.listen({ port, hostname })) {
-      (async () => {
-        //console.log(conn.localAddr);
-        const remoteAddr = conn.remoteAddr.hostname;
-        try {
-          for await (const res of Deno.serveHttp(conn)) {
-            const req = res.request;
-            const url = req.url;
-            const purl = parseURL(url);
-            if (!purl) {
-              continue;
-            }
-            req.path = purl.path;
-            req.query = purl.query;
-            req.host = purl.host;
-            req.port = purl.port;
-            req.remoteAddr = remoteAddr;
-            let resd = null;
-            const path = req.path;
-            if (path.startsWith("/api/")) {
-              resd = await this.handleApi(req);
-            } else if (path.startsWith("/data/")) {
-              resd = await this.handleData(req);
-              if (resd == null) {
-                resd = await this.handleWeb(req);
-              }
-            } else {
-              resd = await this.handleWeb(req);
-            }
+    console.log(`http://localhost:${port}/`);
+    const hostname = "[::]"; // for IPv6
+    const addr = hostname + ":" + port;
+    serve(async (req, conn) => {
+      const remoteAddr = conn.remoteAddr.hostname;
+      //console.log("remoteAddr", remoteAddr);
+      
+      try {
+        const url = req.url;
+        const purl = parseURL(url);
+        if (purl) {
+          req.path = purl.path;
+          req.query = purl.query;
+          req.host = purl.host;
+          req.port = purl.port;
+          req.remoteAddr = remoteAddr;
+          const path = req.path;
+          if (path.startsWith("/api/")) {
+            const resd = await this.handleApi(req);
             if (resd) {
-              res.respondWith(resd);
-            } else {
-              res.respondWith(await this.handleNotFound(req));
+              return resd;
+            }
+          } else if (path.startsWith("/data/")) {
+            const resd = await this.handleData(req);
+            if (resd) {
+              return resd;
             }
           }
-        } catch (e) {
-          err(e);
+          const resd = await this.handleWeb(req);
+          if (resd) {
+            return resd;
+          }
         }
-      })();
-    }
+        return await this.handleNotFound(req);
+      } catch (e) {
+        this.err(e);
+      }
+    }, { addr });
+  }
+  // err
+  err(e) {
+    console.log("err", e.stack);
   }
   // not found
   async handleNotFound(req) { // to override
@@ -298,29 +301,6 @@ class Server {
   async api(path, req, remoteAddr) { // to override
     return req;
   }
-
-  // for debug
-  debug() {
-    return false;
-  }
-  err(e) {
-    if (this.debug()) {
-      console.log(e);
-    }
-  }
-  log(s) {
-    if (this.debug()) {
-      console.log(s);
-    }
-  }
 }
 
 export { Server };
-
-/*
-if (import.meta.url.endsWith("/Server.js")) {
-  const port = parseInt(Deno.args[0]);
-  new Server(port);
-  console.log(`http://localhost:${port}/`);
-}
-*/
