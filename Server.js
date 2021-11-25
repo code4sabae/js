@@ -6,7 +6,7 @@ import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
 const getFileNameFromDate = () => {
   const d = new Date();
-  const fix0 = (n) => n < 10 ? "0" + n : n;
+  const fix0 = (n) => n < 10 ? "0" + n : n.toString();
   const ymd = d.getFullYear() + fix0(d.getMonth() + 1) + fix0(d.getDate());
   return ymd + "/" + UUID.generate();
 };
@@ -113,9 +113,12 @@ class Server {
         }
         return null;
       })();
-      console.log("[req api]", json);
+      //console.log("[req api]", json);
       const res = await this.api(path, json, req.remoteAddr, req);
-      console.log("[res api]", res);
+      if (res instanceof Response) {
+        return res;
+      }
+      //console.log("[res api]", res);
       return new Response(JSON.stringify(res), {
         status: 200,
         headers: new Headers({
@@ -137,7 +140,7 @@ class Server {
       if (req.method === "POST") {
         const ext = getExtension(path, ".jpg");
         const bin = new Uint8Array(await req.arrayBuffer());
-        console.log("[req data]", bin.length);
+        //console.log("[req data]", bin.length);
         const fn = getFileNameFromDate();
         const name = fn + ext;
         try {
@@ -151,7 +154,7 @@ class Server {
         }
         Deno.writeFileSync("data/" + name, bin);
         const res = { name };
-        console.log("[data res]", res);
+        //console.log("[data res]", res);
         return new Response(JSON.stringify(res), {
           status: 200,
           headers: new Headers({
@@ -304,3 +307,10 @@ class Server {
 }
 
 export { Server };
+
+/*
+if (Deno. run script name? .endsWith("/Server.js")) {
+  const port = parseInt(Deno.args[0]);
+  new Server(port);
+}
+*/
