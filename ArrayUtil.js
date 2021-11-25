@@ -1,3 +1,5 @@
+import { rnd } from "./rnd.js";
+
 const min = (array, func) => {
   let min = Number.MAX_SAFE_INTEGER;
   let hit = null;
@@ -130,6 +132,54 @@ const countBy = (ar) => {
   return cnt;
 };
 
+const make = (from, to) => {
+  if (typeof from == "string" && from.length == 1) {
+    const nfrom = from.charCodeAt(0);
+    const nto = to.charCodeAt(0);
+    const res = [];
+    if (nfrom < nto) {
+      for (let i = nfrom; i <= to.charCodeAt(0); i++) {
+        res.push(String.fromCharCode(i));
+      }
+    } else {
+      for (let i = nfrom; i >= to.charCodeAt(0); i--) {
+        res.push(String.fromCharCode(i));
+      }
+    }
+    return res;
+  }
+  if (typeof from == "number") {
+    const res = [];
+    if (to > from) {
+      for (let i = from; i <= to; i++) {
+        res.push(i);
+      }
+    } else {
+      for (let i = from; i >= to; i--) {
+        res.push(i);
+      }
+    }
+    return res;
+  }
+  throw new Error("not supported params");
+};
+const mapToObject = async (nameArray, mapFunc) => {
+  const res = await Promise.all(nameArray.map(mapFunc));
+  const o = new Object();
+  for (let i = 0; i < res.length; i++) {
+    o[nameArray[i]] = res[i];
+  }
+  return o;
+};
+const shuffle = (array) => {
+  for (let i = 0; i < array.length; i++) {
+		const n = rnd(array.length);
+		const tmp = array[i];
+		array[i] = array[n];
+		array[n] = tmp;
+	}
+  return array;
+};
 const ArrayUtil = {
   min,
   max,
@@ -142,5 +192,8 @@ const ArrayUtil = {
   groupBy,
   getUnion,
   countBy,
+  make,
+  mapToObject,
+  shuffle,
 };
 export { ArrayUtil }

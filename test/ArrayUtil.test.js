@@ -132,3 +132,23 @@ Deno.test("toDuplicated", () => {
   ];
   t.assertEquals(ArrayUtil.toDuplicated(data), expect1);
 });
+Deno.test("make string", () => {
+  t.assertEquals(ArrayUtil.make("A", "G"), ["A", "B", "C", "D", "E", "F", "G"]);
+  t.assertEquals(ArrayUtil.make("Z", "X"), ["Z", "Y", "X"]);
+  t.assertEquals(ArrayUtil.make("あ", "う"), ["あ", "ぃ", "い", "ぅ", "う"]);
+  t.assertEquals(ArrayUtil.make("0", "9"), ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+});
+Deno.test("make number", () => {
+  t.assertEquals(ArrayUtil.make(0, 5), [0, 1, 2, 3, 4, 5]);
+  t.assertEquals(ArrayUtil.make(5, 0), [5, 4, 3, 2, 1, 0]);
+  t.assertEquals(ArrayUtil.make(3, 3), [3]);
+  t.assertEquals(ArrayUtil.make(3, null), [3, 2, 1, 0]);
+  t.assertThrows(() => { ArrayUtil.make(null, null), [3] });
+});
+Deno.test("mapToObject", async () => {
+  t.assertEquals(await ArrayUtil.mapToObject(["A", "BB", "CCC"], async (s) => s.length), { "A": 1, "BB": 2, "CCC": 3 });
+});
+Deno.test("shuffle", async () => {
+  const abc = ArrayUtil.shuffle(ArrayUtil.make("A", "Z"));
+  t.assertEquals(abc.length, 26);
+});
