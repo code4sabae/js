@@ -6,6 +6,7 @@ const std = (s) => IMIMojiConverter.toHalfWidth(s).toLowerCase();
 const EMBED_IMAGE = true;
 const EMBED_IMAGE_W = 100; // 300;
 const EMBED_IMAGE_H = 100; // 225;
+const USE_RESIZED_IMAGE = false; // if true, define getResizedImage
 
 const create = (tag) => document.createElement(tag);
 const clear = (ele) => ele.innerHTML = "";
@@ -189,9 +190,14 @@ const showTable = function (p, csv, sfilter, sortidx, sortorder) {
         //				if (val.toLowerCase().endsWith(".jpg") || val.toLowerCase().endsWith(".png")) {
         if (val.toLowerCase().endsWith(".jpg")) {
           if (EMBED_IMAGE) {
-            s = "<img src='" +
-              getResizedImageURL(val, EMBED_IMAGE_W, EMBED_IMAGE_H) + "'><br>";
-            s += "<a href=" + val + ">" + val + "</a>";
+            if (USE_RESIZED_IMAGE) {
+              s = "<img src='" +
+                getResizedImageURL(val, EMBED_IMAGE_W, EMBED_IMAGE_H) + "'><br>";
+              s += "<a href=" + val + ">" + val + "</a>";
+            } else {
+              s = "<img src='" + val + "'><br>";
+              s += "<a href=" + val + ">" + val + "</a>";
+            }
           } else {
             s += "<a href=" + val + ">" + val + "</a>";
           }
