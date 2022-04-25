@@ -6,10 +6,13 @@ CSV.parse = (s) => CSV.toJSON(CSV.decode(s));
 CSV.stringify = (json) => CSV.encode(CSV.fromJSON(json));
 
 CSV.addBOM = function (s) {
-  return "\ufeff" + s;
+  if (s != null) {
+    return "\ufeff" + s;
+  }
+  return s;
 };
 CSV.removeBOM = function (s) {
-  if (s.charAt(0) === "\ufeff") {
+  if (s && typeof s == "string" && s.length > 0 && s.charAt(0) === "\ufeff") {
     return s.substring(1);
   }
   return s;
@@ -103,7 +106,7 @@ CSV.encode = function (csvar) {
     }
     s.push(s2.join(","));
   }
-  return CSV.addBOM(s.join("\n") + "\n");
+  return CSV.addBOM(s.join("\r\n") + "\r\n");
 };
 CSV.toJSON = function (csv, removeblacket) {
   const res = [];

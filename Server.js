@@ -3,6 +3,7 @@ import { UUID } from "https://js.sabae.cc/UUID.js";
 import { getExtension } from "https://js.sabae.cc/getExtension.js";
 import { parseURL } from "https://js.sabae.cc/parseURL.js";
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
+import { DateTime } from "https://js.sabae.cc/DateTime.js";
 
 const getFileNameFromDate = () => {
   const d = new Date();
@@ -76,6 +77,14 @@ const readFileRange = async (fn, range) => {
   data = await readFilePartial(fn, range0, range1 - range0 + 1);
   return [data, flen, gzip];
 };
+
+let logpath = null;
+{
+  logpath = Deno.env.get("SERVER_LOG_PATH");
+  if (logpath && !logpath.endsWith("/")) {
+    logpath += "/";
+  }
+}
 
 class Server {
   constructor(port) {
@@ -268,6 +277,7 @@ class Server {
           req.port = purl.port;
           req.remoteAddr = remoteAddr;
           const path = req.path;
+          await this.log(req);
           if (path.startsWith("/api/")) {
             const resd = await this.handleApi(req);
             if (resd) {
@@ -289,6 +299,22 @@ class Server {
         this.err(e);
       }
     }, { addr });
+  }
+  // log
+  async log(req) { // 
+    /*
+          req.path = purl.path;
+          req.query = purl.query;
+          req.host = purl.host;
+          req.port = purl.port;
+          req.remoteAddr = remoteAddr;
+    */
+    if (logpath) {
+      const dt = new DateTime();
+      const fn = logpath + dt.day.toStringYMD() + ".log";
+      const s = dt.toString() + "\t" + req.path + "\t" + req.remoteAddr + "\n";
+      await Deno.writeTextFile(fn, s, { append: true });
+    }
   }
   // err
   err(e) {

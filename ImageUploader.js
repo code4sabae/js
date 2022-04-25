@@ -1,5 +1,6 @@
 import { imgutil } from "./imgutil.js";
 import { getExtension } from "./getExtension.js";
+import { EXIF } from "https://taisukef.github.io/exif-js/EXIF.js";
 
 class ImageUploader extends HTMLElement {
   constructor(uploadurl) {
@@ -38,7 +39,16 @@ class ImageUploader extends HTMLElement {
   }
   // this.onload (callback)
   async setFile(file, maxwidth, maxsize) {
-    const img = await imgutil.loadResizedImage(file, maxwidth, maxsize);
+    //const img = await imgutil.loadResizedImage(file, maxwidth, maxsize);
+    const file = item.file;
+    const bin = await ImageUtil.readAsArrayBufferAsync(file);
+    const exif = EXIF.readFromBinaryFile(bin);
+    this.colorSpace = exif.ColorSpace == "sRGB" || imgsrgb.checked ? "srgb" : "display-p3";
+    const img0 = await ImageUtil.getImageFromArrayBuffer(bin);
+    console.log(img0, colorSpace);
+    const img = await ImageUtil.resizeImage(img0, "image/jpeg", maxwidth, this.colorSpace);
+    // maxsize?
+
     img.orgwidth = img.width; // img.width が変わってしまうので保存 getArrayBufferFromImageで使う
     img.orgheight = img.height;
     this.c.appendChild(img);
@@ -78,8 +88,8 @@ class ImageUploader extends HTMLElement {
   async upload(file, img) {
     const isjpg = getExtension(file.name, ".jpg").toLowerCase() === ".jpg";
     const mimeType = isjpg ? "image/jpeg" : "image/png"; // image/webp も?
-    const quality = .9;
-    const bin = await imgutil.getArrayBufferFromImage(img, mimeType, quality);
+    const quality = .92;
+    const bin = await ImageUtil.getArrayBufferFromImage(img, mimeType, quality, this.colorSpace);
 
     //const img2 = await imgutil.getImageFromArrayBuffer(bin);
     //this.appendChild(img2);

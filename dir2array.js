@@ -20,8 +20,10 @@ const dir2array = async (path) => {
 
 export { dir2array };
 
+/*
 if (import.meta.url.endsWith("/dir2array.js")) {
   const ext = Deno.args[0] || "";
   const list = (await dir2array(".")).filter(f => f.endsWith("." + ext));
   console.log(JSON.stringify(list, null, 2));
 }
+*/
