@@ -14,11 +14,13 @@ const clear = (ele) => ele.innerHTML = "";
 const main = async (parent) => {
   const url = parent.getAttribute("src");
   const name = parent.getAttribute("name") || url;
+  const q = parent.getAttribute("q") || "";
 
   const csv = await CSV.fetch(url);
   const filter = create("input");
   filter.className = "filter";
   filter.placeholder = "フィルター";
+  filter.value = q;
   parent.appendChild(filter);
   const tbl = create("div");
   parent.appendChild(tbl);
@@ -220,10 +222,15 @@ const showTable = function (p, csv, sfilter, sortidx, sortorder) {
 };
 
 class CSVViewer extends HTMLElement {
-  constructor() {
+  constructor(param) {
     super();
+    for (const name in param) {
+      this.setAttribute(name, param[name]);
+    }
     main(this);
   }
 }
 
 customElements.define("csv-viewer", CSVViewer);
+
+export { CSVViewer };
