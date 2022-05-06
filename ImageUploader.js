@@ -38,7 +38,7 @@ class ImageUploader extends HTMLElement {
     return this.tf.value;
   }
   // this.onload (callback)
-  async setFile(file, maxwidth, maxsize) {
+  async setFile(item, maxwidth, maxsize) {
     //const img = await imgutil.loadResizedImage(file, maxwidth, maxsize);
     const file = item.file;
     const bin = await ImageUtil.readAsArrayBufferAsync(file);
