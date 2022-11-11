@@ -1,3 +1,5 @@
+// https://github.com/code4fukui/CSV/
+
 import { SJIS } from "https://code4sabae.github.io/js/SJIS.js";
 
 const CSV = {};
@@ -106,7 +108,7 @@ CSV.encode = function (csvar) {
     }
     s.push(s2.join(","));
   }
-  return CSV.addBOM(s.join("\r\n") + "\r\n");
+  return CSV.addBOM(s.join("\n") + "\n");
 };
 CSV.toJSON = function (csv, removeblacket) {
   const res = [];
@@ -275,6 +277,9 @@ CSV.fetch = async (url) => {
   const data = SJIS.decodeAuto(await CSV.fetchOrLoad(url));
   const csv = CSV.decode(data);
   return csv;
+};
+CSV.fetchJSON = async (url) => {
+  return CSV.toJSON(await CSV.fetch(url));
 };
 CSV.makeTable = (csv) => {
   const c = (tag) => document.createElement(tag);

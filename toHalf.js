@@ -1,9 +1,11 @@
-const toHalf = (s) => {
-  const ZEN = "０１２３４５６７８９（）／";
-  const HAN = "0123456789()/";
+export const toHalf = s => {
+  if (s === null || s === undefined) {
+    return s
+  }
+  const ZEN = "　！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝〜”“‘’";
+  const HAN = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\"\"''";
   let s2 = "";
-  for (let i = 0; i < s.length; i++) {
-    const c = s.charAt(i);
+  for (const c of s) {
     const n = ZEN.indexOf(c);
     if (n >= 0) {
       s2 += HAN.charAt(n);
@@ -13,5 +15,3 @@ const toHalf = (s) => {
   }
   return s2;
 };
-
-export { toHalf };
