@@ -40,3 +40,20 @@ export const bincat = (bin1, bin2) => {
   }
   return bin;
 };
+export const eqbin = (bin1, bin2) => {
+  if (bin1 == bin2) {
+    return true;
+  }
+  if (!bin1 || !bin2) {
+    return false;
+  }
+  if (bin1.length != bin2.length) {
+    return false;
+  }
+  for (let i = 0; i < bin1.length; i++) {
+    if (bin1[i] != bin2[i]) {
+      return false;
+    }
+  }
+  return true;
+};
