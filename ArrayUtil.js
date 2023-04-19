@@ -208,7 +208,7 @@ const diff = (before, after) => {
       add.push(a);
     }
   }
-  return { added: add, removeed: remove };
+  return { added: add, removed: remove };
 };
 const ArrayUtil = {
   min,
