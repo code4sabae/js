@@ -1,4 +1,5 @@
 import { rnd } from "./rnd.js";
+import { deepEqual } from "https://js.sabae.cc/deepEqual.js";
 
 const min = (array, func) => {
   let min = Number.MAX_SAFE_INTEGER;
@@ -180,6 +181,35 @@ const shuffle = (array) => {
 	}
   return array;
 };
+const diff = (before, after) => {
+  const add = [];
+  const remove = [];
+  for (const b of before) {
+    let hit = false;
+    for (const a of after) {
+      if (deepEqual(b, a)) {
+        hit = true;
+        break;
+      }
+    }
+    if (!hit) {
+      remove.push(b);
+    }
+  }
+  for (const a of after) {
+    let hit = false;
+    for (const b of before) {
+      if (deepEqual(a, b)) {
+        hit = true;
+        break;
+      }
+    }
+    if (!hit) {
+      add.push(a);
+    }
+  }
+  return { added: add, removeed: remove };
+};
 const ArrayUtil = {
   min,
   max,
@@ -195,5 +225,6 @@ const ArrayUtil = {
   make,
   mapToObject,
   shuffle,
+  diff,
 };
 export { ArrayUtil }
