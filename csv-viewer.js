@@ -1,5 +1,6 @@
 import { CSV } from "https://code4sabae.github.io/js/CSV.js";
 import IMIMojiConverter from "https://code4sabae.github.io/imi-moji-converter-es/IMIMojiConverter.mjs";
+import { ArrayUtil } from "./ArrayUtil.js";
 
 const std = (s) => IMIMojiConverter.toHalfWidth(s).toLowerCase();
 
@@ -14,7 +15,7 @@ const clear = (ele) => ele.innerHTML = "";
 const main = async (parent) => {
   const showTable = function (p, csv, sfilter, sortidx, sortorder) {
     sfilter = std(sfilter);
-    const array = [];
+    let array = [];
     array.push(csv[0]);
     if (sfilter.length == 0) {
       for (let i = 1; i < csv.length; i++) {
@@ -43,83 +44,9 @@ const main = async (parent) => {
         }
       }
     }
-  
-    const getNumber = function (s) {
-      if (s.length == 0) {
-        return Math.NaN;
-      }
-      let i;
-      for (i = 0; i < s.length; i++) {
-        if ("0123456789.,".indexOf(s.charAt(i)) == -1) {
-          break;
-        }
-      }
-      if (i == 0) {
-        return Math.NaN;
-      }
-      return parseFloat(s.substring(0, i).replace(/,/g, ""));
-    };
-  
-    /*
-    console.log(getNumber("") == Math.NaN)
-    console.log(getNumber("n/a") == Math.NaN)
-    console.log(getNumber("1,500"))
-    console.log(getNumber("3.45%"))
-    */
-    // nline.textContent = array.length - 1
-    if (sortidx != undefined) {
-      const head = array[0];
-      array.shift();
-      const arbk = [];
-      for (let i = 0; i < array.length; i++) {
-        arbk.push(array[i]);
-      }
-      array.sort(function (a, b) {
-        const an = a[sortidx];
-        const bn = b[sortidx];
-        let am = 0;
-        let bm = 0;
-        while (am++) {
-          if (arbk[am] == a) {
-            break;
-          }
-        }
-        while (bm++) {
-          if (arbk[bm] == b) {
-            break;
-          }
-        }
-        let flg = 0;
-        if (an == bn) {
-          flg = sortorder ? am - bm : bm - am;
-        } else {
-          // cut unit
-          const ad = getNumber(an);
-          const bd = getNumber(bn);
-          if (ad == Math.NaN && bd == Math.NaN) {
-            flg = an > bn ? 1 : -1;
-          } else if (ad == Math.NaN) {
-            flg = -1;
-          } else if (bd == Math.NaN) {
-            flg = 1;
-          } else {
-            flg = ad > bd ? 1 : -1;
-          }
-  
-          /*
-          const anv = parseFloat(an);
-          const bnv = parseFloat(bn);
-          if (an == anv && bn == bnv) {
-            flg = anv > bnv ? 1 : -1;
-          } else {
-            flg = an > bn ? 1 : -1;
-          }
-          */
-        }
-        return flg * (sortorder ? 1 : -1);
-      });
-      array.splice(0, 0, head);
-    }
+    
+    const csvmode = true;
+    array = ArrayUtil.getSorted(array, sortidx, sortorder, csvmode);
   
     const tbl = create("table");
   
