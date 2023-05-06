@@ -152,3 +152,93 @@ Deno.test("shuffle", async () => {
   const abc = ArrayUtil.shuffle(ArrayUtil.make("A", "Z"));
   t.assertEquals(abc.length, 26);
 });
+Deno.test("getSorted", async () => {
+  const array = [
+    { a: "1m" },
+    { a: "1cm" },
+    { a: "2m" },
+    { a: "2cm" },
+    { a: "a" },
+    { a: "b" },
+    { a: "1", b: 1 },
+    { a: "1", b: 2 },
+  ];
+  t.assertEquals(ArrayUtil.getSorted(array, "a"), [
+    { a: "1", b: 1 },
+    { a: "1", b: 2 },
+    { a: "1cm" },
+    { a: "1m" },
+    { a: "2cm" },
+    { a: "2m" },
+    { a: "a" },
+    { a: "b" },
+  ]);
+  t.assertEquals(ArrayUtil.getSorted(array, "a", false), [
+    { a: "b" },
+    { a: "a" },
+    { a: "2m" },
+    { a: "2cm" },
+    { a: "1m" },
+    { a: "1cm" },
+    { a: "1", b: 2 },
+    { a: "1", b: 1 },
+  ]);
+  t.assertEquals(ArrayUtil.getSorted(array, "b", true), [
+    { a: "1", b: 1 },
+    { a: "1", b: 2 },
+    { a: "1m" },
+    { a: "1cm" },
+    { a: "2m" },
+    { a: "2cm" },
+    { a: "a" },
+    { a: "b" },
+  ]);
+
+  t.assertEquals(ArrayUtil.getSorted(array, "b", false), [
+    { a: "1", b: 2 },
+    { a: "1", b: 1 },
+    { a: "b" },
+    { a: "a" },
+    { a: "2cm" },
+    { a: "2m" },
+    { a: "1cm" },
+    { a: "1m" },
+  ]);
+});
+Deno.test("getSorted date", async () => {
+  const array = [
+    { a: "2023-05-06" },
+    { a: "2023-04-02" },
+    { a: "2023-07-07" },
+  ];
+  t.assertEquals(ArrayUtil.getSorted(array, "a"), [
+    { a: "2023-04-02" },
+    { a: "2023-05-06" },
+    { a: "2023-07-07" },
+  ]);
+  t.assertEquals(ArrayUtil.getSorted(array, "a", false), [
+    { a: "2023-07-07" },
+    { a: "2023-05-06" },
+    { a: "2023-04-02" },
+  ]);
+});
+Deno.test("getSorted csvmode", async () => {
+  const array = [
+    ["id", "date"],
+    [1, "2023-05-06"],
+    [2, "2023-04-02"],
+    [3, "2023-07-07"],
+  ];
+  t.assertEquals(ArrayUtil.getSorted(array, 1, true, true), [
+    ["id", "date"],
+    [2, "2023-04-02"],
+    [1, "2023-05-06"],
+    [3, "2023-07-07"],
+  ]);
+  t.assertEquals(ArrayUtil.getSorted(array, 1, false, true), [
+    ["id", "date"],
+    [3, "2023-07-07"],
+    [1, "2023-05-06"],
+    [2, "2023-04-02"],
+  ]);
+});

@@ -210,6 +210,64 @@ const diff = (before, after) => {
   }
   return { added: add, removed: remove };
 };
+const getSorted = (array, name, ascorder = true, csvmode = false) => {
+  if (name == undefined) {
+    return array;
+  }
+  const getNumber = (s) => {
+    if (s.length == 0) {
+      return NaN;
+    }
+    let i;
+    for (i = 0; i < s.length; i++) {
+      if ("0123456789.,".indexOf(s.charAt(i)) == -1) {
+        break;
+      }
+    }
+    if (i == 0) {
+      return NaN;
+    }
+    return parseFloat(s.substring(0, i).replace(/,/g, ""));
+  };
+  const res = array.map(a => a);
+  let head = null;
+  if (csvmode) {
+    head = res[0];
+    res.shift();
+  }
+  res.sort((a, b) => {
+    const an = a[name];
+    const bn = b[name];
+    if (an == null && bn != null) {
+      return 1;
+    } else if (bn == null && an != null) {
+      return -1;
+    }
+    let flg = 0;
+    const am = array.indexOf(a);
+    const bm = array.indexOf(b);
+    if (an == bn) {
+      flg = am - bm;
+    } else {
+      const ad = getNumber(an);
+      const bd = getNumber(bn);
+      if (ad == bd) {
+        flg = an.toString().localeCompare(bn.toString());
+      } else if (isNaN(ad)) {
+        flg = 1;
+      } else if (isNaN(bd)) {
+        flg = -1;
+      } else {
+        flg = ad > bd ? 1 : -1;
+      }
+    }
+    return flg * (ascorder ? 1 : -1);
+  });
+  if (csvmode) {
+    res.splice(0, 0, head);
+  }
+  return res;
+}
 const ArrayUtil = {
   min,
   max,
@@ -226,5 +284,6 @@ const ArrayUtil = {
   mapToObject,
   shuffle,
   diff,
+  getSorted,
 };
 export { ArrayUtil }
