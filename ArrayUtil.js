@@ -238,9 +238,9 @@ const getSorted = (array, name, ascorder = true, csvmode = false) => {
   res.sort((a, b) => {
     const an = a[name];
     const bn = b[name];
-    if (an == null && bn != null) {
+    if ((an == null || an == "") && bn != null) {
       return 1;
-    } else if (bn == null && an != null) {
+    } else if ((bn == null || bn == "") && an != null) {
       return -1;
     }
     let flg = 0;
@@ -251,7 +251,7 @@ const getSorted = (array, name, ascorder = true, csvmode = false) => {
     } else {
       const ad = getNumber(an);
       const bd = getNumber(bn);
-      if (ad == bd) {
+      if (isNaN(ad) && isNaN(bd) || ad == bd) {
         flg = an.toString().localeCompare(bn.toString());
       } else if (isNaN(ad)) {
         flg = 1;

@@ -205,6 +205,29 @@ Deno.test("getSorted", async () => {
     { a: "1m" },
   ]);
 });
+Deno.test("getSorted str", async () => {
+  const array = [
+    { a: "a" },
+    { a: "c" },
+    { a: "d" },
+    { a: "b" },
+    { a: "" },
+  ];
+  t.assertEquals(ArrayUtil.getSorted(array, "a"), [
+    { a: "a" },
+    { a: "b" },
+    { a: "c" },
+    { a: "d" },
+    { a: "" },
+  ]);
+  t.assertEquals(ArrayUtil.getSorted(array, "a", false), [
+    { a: "d" },
+    { a: "c" },
+    { a: "b" },
+    { a: "a" },
+    { a: "" },
+  ]);
+});
 Deno.test("getSorted date", async () => {
   const array = [
     { a: "2023-05-06" },
