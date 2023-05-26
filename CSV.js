@@ -19,8 +19,15 @@ CSV.removeBOM = function (s) {
   }
   return s;
 };
+CSV.normalizeEnter = function(s) {
+  if (s.indexOf("\r") >= 0 && s.indexOf("\n") == -1) {
+    s = s.replace(/\r/g, "\n");
+  }
+  return s;
+};
 CSV.decode = function (s) {
   s = CSV.removeBOM(s);
+  s = CSV.normalizeEnter(s);
   const res = [];
   let st = 0;
   let line = [];
