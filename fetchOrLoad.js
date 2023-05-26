@@ -14,6 +14,9 @@ const getCharsetFromHTML = (bin) => {
   if (!cs) {
     return "utf-8";
   }
+  if (cs[1].length > 20) {
+    return "utf-8";
+  }
   return cs[1];
 };
 
