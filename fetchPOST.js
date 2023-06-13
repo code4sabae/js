@@ -1,19 +1,29 @@
-const fetchRawPOST = async (url, param) => {
+export const fetchRawPOST = async (url, param) => {
   const method = "POST";
-  const body = Object.keys(param).map((s) => s + "=" + encodeURIComponent(param[s])).join("&");
+  const ss = [];
+  const keys = Object.keys(param);
+  for (const key of keys) {
+    const v = param[key];
+    if (Array.isArray(v)) {
+      for (const d of v) {
+        ss.push(encodeURIComponent(key + "[]") + "=" + encodeURIComponent(d.toString()));
+      }
+    } else {
+      ss.push(encodeURIComponent(key) + "=" + encodeURIComponent(v.toString()));
+    }
+  }
+  const body = ss.join("&");
   const headers = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
   };
   return await fetch(url, { method, headers, body });
 };
 
-const fetchPOST = async (url, param) => {
+export const fetchPOST = async (url, param) => {
   return await (await fetchRawPOST(url, param)).json();
-}
+};
 
-const fetchBinPOST = async (url, param) => {
+export const fetchBinPOST = async (url, param) => {
   return new Uint8Array(await (await fetchRawPOST(url, param)).arrayBuffer());
-}
-
-export { fetchPOST, fetchBinPOST, fetchRawPOST };
+};
