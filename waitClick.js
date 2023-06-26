@@ -1,12 +1,12 @@
-const waitClick = (comp) => {
+export const waitClick = (comp) => {
   comp ||= document.body;
   if (!Array.isArray(comp)) {
     return new Promise((resolve) => {
       comp.style.cursor = "pointer";
-      const f = () => {
+      const f = (e) => {
         comp.removeEventListener("click", f);
         comp.style.cursor = "";
-        resolve();
+        resolve(e);
       };
       comp.addEventListener("click", f);
     });
@@ -32,5 +32,3 @@ const waitClick = (comp) => {
     });
   }
 };
-
-export { waitClick };
