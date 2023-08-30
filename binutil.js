@@ -9,6 +9,9 @@ export const bin2i = (bin, n) => {
   return ((bin[n] & 0xff) << 24) | ((bin[n + 1] & 0xff) << 16) | ((bin[n + 2] & 0xff) << 8) | (bin[n + 3] & 0xff);
 };
 export const subbin = (bin, n, len) => {
+  if (len === undefined) {
+    len = bin.length - n;
+  }
   const b = new Uint8Array(len);
   for (let i = 0; i < len; i++) {
     b[i] = bin[i + n];
