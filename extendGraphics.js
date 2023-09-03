@@ -14,15 +14,15 @@ const extendGraphics = function (g) {
       r = r[0];
     }
     if (a == null) {
-		a = 1;
-	}
+    a = 1;
+  }
     const c = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
     this.fillStyle = c;
     this.strokeStyle = c;
   };
   g.setColorHSL = function (h, s, l, a) {
-	  const c = hsl2rgb(h, s, l);
-	  this.setColor(c[0], c[1], c[2], a);
+    const c = hsl2rgb(h, s, l);
+    this.setColor(c[0], c[1], c[2], a);
   };
   g.drawLine = function (x1, y1, x2, y2) {
     this.beginPath()
@@ -43,9 +43,9 @@ const extendGraphics = function (g) {
   g.fillRect = function (x, y, w, h) {
     this.beginPath()
     this.moveTo(x, y)
-    this.lineTo(x + w - 1, y)
-    this.lineTo(x + w - 1, y + h - 1)
-    this.lineTo(x, y + h - 1)
+    this.lineTo(x + w, y)
+    this.lineTo(x + w, y + h)
+    this.lineTo(x, y + h)
     this.closePath()
     this.fill()
   }
@@ -84,10 +84,10 @@ const extendGraphics = function (g) {
     const th = Math.atan2(dy, dx)
     const th2 = th - Math.PI / 2
     if (len < arh * 1.5) {
-    	arh = len / 1.5
-    	if (arh / 2 < arw) {
-			arw = arh / 2
-		}
+      arh = len / 1.5
+      if (arh / 2 < arw) {
+      arw = arh / 2
+    }
     }
     const dx1 = Math.cos(th2) * arw
     const dy1 = Math.sin(th2) * arw
@@ -106,10 +106,10 @@ const extendGraphics = function (g) {
     g.lineTo(x1 - dx1, y1 - dy1)
     g.closePath()
     if (fill) {
-		g.fill()
-	} else {
-		g.stroke()
-	}
+    g.fill()
+  } else {
+    g.stroke()
+  }
   }
   g.fillArrow = function (x1, y1, x2, y2, arw, arh) {
     this.drawArrow(x1, y1, x2, y2, arw, arh, true)
