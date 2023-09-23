@@ -265,3 +265,34 @@ Deno.test("getSorted csvmode", async () => {
     [2, "2023-04-02"],
   ]);
 });
+Deno.test("toUnique with ftarget", () => {
+  const data = [
+    { k: "a", v: 1 },
+    { k: "b", v: 2 },
+    { k: "c", v: 3 },
+    { k: "a", v: 4 },
+    { k: "b", v: 5 },
+  ];
+  const expect1 = [
+    { k: "a", v: 1 },
+    { k: "b", v: 2 },
+    { k: "c", v: 3 },
+  ];
+  t.assertEquals(ArrayUtil.toUnique(data, a => a.k), expect1);
+});
+Deno.test("toDuplicated with ftarget", () => {
+  const data = [
+    { k: "a", v: 1 },
+    { k: "b", v: 2 },
+    { k: "c", v: 3 },
+    { k: "a", v: 4 },
+    { k: "b", v: 5 },
+  ];
+  const expect1 = [
+    { k: "a", v: 1 },
+    { k: "a", v: 4 },
+    { k: "b", v: 2 },
+    { k: "b", v: 5 },
+  ];
+  t.assertEquals(ArrayUtil.toDuplicated(data, a => a.k), expect1);
+});

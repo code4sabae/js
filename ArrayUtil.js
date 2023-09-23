@@ -35,28 +35,59 @@ const isUnique = (array) => {
   }
   return true;
 };
-const toUnique = (ar) => {
-  const set = new Set();
-  for (const a of ar) {
-    set.add(a);
-  }
-  const res = [];
-  set.forEach(s => res.push(s));
-  return res;
-};
-const toDuplicated = (ar) => {
-  const set = new Set();
-  const resset = new Set();
-  for (const a of ar) {
-    if (set.has(a)) {
-      resset.add(a);
-    } else {
+const toUnique = (ar, ftarget = null) => {
+  if (!ftarget) {
+    const set = new Set();
+    for (const a of ar) {
       set.add(a);
     }
+    const res = [];
+    set.forEach(s => res.push(s));
+    return res;
+  } else {
+    const chk = {};
+    const res = [];
+    for (const a of ar) {
+      const t = ftarget(a);
+      if (chk[t]) continue;
+      chk[t] = a;
+      res.push(a);
+    }
+    return res;
   }
-  const res = [];
-  resset.forEach(s => res.push(s));
-  return res;
+};
+const toDuplicated = (ar, ftarget = null) => {
+  if (!ftarget) {
+    const set = new Set();
+    const resset = new Set();
+    for (const a of ar) {
+      if (set.has(a)) {
+        resset.add(a);
+      } else {
+        set.add(a);
+      }
+    }
+    const res = [];
+    resset.forEach(s => res.push(s));
+    return res;
+  } else {
+    const chk = {};
+    for (const a of ar) {
+      const t = ftarget(a);
+      if (!chk[t]) {
+        chk[t] = [a];
+      } else {
+        chk[t].push(a);
+      }
+    }
+    const res = [];
+    for (const ar of Object.values(chk)) {
+      if (ar.length > 1) {
+        ar.forEach(a => res.push(a));
+      }
+    }
+    return res;
+  }
 };
 const toUniqueByString = (ar) => {
   const map = {};
