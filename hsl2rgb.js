@@ -5,6 +5,7 @@ const hsl2rgb = (h, s, l) => { // h:0-360, s:0-1, l:0-1
 	while (h < 0) {
 		h += 360;
 	}
+	h %= 360;
 	const n = Math.floor(h / 60) % 6;
 	let rgb = [];
 	switch (n) {
