@@ -1,10 +1,17 @@
-const fetchImage = async (url) => {
+const imgcache = {};
+
+export const fetchImage = async (url) => {
+  const img = imgcache[url];
+  if (img) {
+    return img;
+  }
   return new Promise((resolve, reject) => {
       const img = new Image();
-      img.onload = () => resolve(img);
+      img.onload = () => {
+        imgcache[url] = img;
+        resolve(img);
+      };
       img.onerror = () => reject();
       img.src = url;
   });
 };
-
-export { fetchImage };
