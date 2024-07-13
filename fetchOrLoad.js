@@ -1,10 +1,21 @@
 import { fetchBin } from "https://js.sabae.cc/fetchBin.js";
-import { SJIS } from "https://js.sabae.cc/SJIS.js";
+//import { SJIS } from "https://js.sabae.cc/SJIS.js";
+import { SHAKE128 } from "https://code4fukui.github.io/SHA3/SHAKE128.js";
+import { Base16 } from "https://code4fukui.github.io/Base16/Base16.js";
 
-const escapeURL = (url) => {
+const hash = (fn) => {
+  const org = new TextEncoder().encode(fn);
+  const bin = SHAKE128.digest(org, 128);
+  return Base16.encode(bin);
+};
+
+export const escapeURL = (url) => {
   let s = url.replace(/\//g, "_");
   s = s.replace(/\?/g, "_");
   s = s.replace(/\s/g, "_");
+  if (s.length > 100) {
+    s = s.substring(0, 100) + hash(s);
+  }
   return s;
 };
 
@@ -21,7 +32,12 @@ const getCharsetFromHTML = (bin) => {
 };
 
 const fetchText = async (url) => {
-  const bin = await fetchBin(url);
+  const opt = {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
+    },
+  };
+  const bin = await fetchBin(url, opt);
   const cset = getCharsetFromHTML(bin);
   //console.log(cset);
   //const text = SJIS.decodeAuto(bin);
