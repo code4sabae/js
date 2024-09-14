@@ -19,16 +19,14 @@ export const escapeURL = (url) => {
   return s;
 };
 
-const getCharsetFromHTML = (bin) => {
-  const s = new TextDecoder().decode(bin);
-  const cs = s.match(/charset="(.+)"/)
-  if (!cs) {
-    return "utf-8";
+export const getEncodingFromHTML = (bin) => {
+  for (const name  of ["encoding", "charset"]) {
+    const s = new TextDecoder().decode(bin);
+    const cs = s.match(new RegExp(name + "=\"(.+)\""));
+    if (!cs || cs[1].length > 20) continue;
+    return cs[1];
   }
-  if (cs[1].length > 20) {
-    return "utf-8";
-  }
-  return cs[1];
+  return "utf-8";
 };
 
 const fetchText = async (url) => {
@@ -38,7 +36,7 @@ const fetchText = async (url) => {
     },
   };
   const bin = await fetchBin(url, opt);
-  const cset = getCharsetFromHTML(bin);
+  const cset = getEncodingFromHTML(bin);
   //console.log(cset);
   //const text = SJIS.decodeAuto(bin);
   //const text = new TextDecoder("euc-jp").decode(bin);
