@@ -14,6 +14,6 @@ export const setDropFilesListener = (comp, callback) => { // callback(files)
       const file = item.getAsFile();
       files.push({ type: item.type, file });
     }
-    callback(files);
+    if (files.length > 0) callback(files);
   };
 };
