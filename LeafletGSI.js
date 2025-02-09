@@ -8,7 +8,7 @@ const initMap = async (div) => {
     const map = L.map(div);
     // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
     L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
-        attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>"',
+        attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
         maxZoom: 18,
     }).addTo(map);
     return map;
