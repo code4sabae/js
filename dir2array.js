@@ -9,16 +9,14 @@ const dig = async (path, files) => {
   }
 };
 
-const dir2array = async (path) => {
+export const dir2array = async (path) => {
   if (path.endsWith("/")) {
     path.substring(0, path.length - 1);
   }
   const res = [];
   await dig(path, res);
-  return res.map(fn => fn.substring(path.length + 1));
+  return res.map(fn => fn.substring(path.length + 1));//.sort();
 };
-
-export { dir2array };
 
 /*
 if (import.meta.url.endsWith("/dir2array.js")) {
